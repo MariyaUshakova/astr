@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Natal Chart</title>
+  <style>
+    body { font-family: sans-serif; background: #222; color: #fff; }
+    canvas { border: 1px solid #555; display: block; margin: 1rem auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #555; padding: 0.5rem; text-align: center; }
+  </style>
+</head>
+<body>
+  <form id="chart-form">
+    <label>Date: <input type="date" id="date" required></label>
+    <label>Time: <input type="time" id="time" required></label>
+    <label>City: <input list="cities" id="city" required></label>
+    <datalist id="cities"></datalist>
+    <button type="submit">Calculate</button>
+  </form>
+  <canvas id="chart" width="400" height="400"></canvas>
+  <table id="results">
+    <thead>
+      <tr><th>♁</th><th>Planet</th><th>Sign</th><th>Longitude</th><th>Retrograde</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <script type="module" src="/client.js"></script>
+</body>
+</html>
