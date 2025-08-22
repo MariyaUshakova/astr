@@ -1,7 +1,9 @@
+// Client-side logic for drawing the natal chart
 import cities from './cities';
 import { initSwissEph, PlanetResult } from './swisseph';
 import { calcFallback } from './fallback';
 
+// Unicode glyphs for each body for display in the results table
 const glyphs: Record<string, string> = {
   Sun: '☉',
   Moon: '☾',
@@ -18,6 +20,7 @@ const glyphs: Record<string, string> = {
   Chiron: '⚷'
 };
 
+// Grab references to DOM elements we interact with
 const form = document.getElementById('chart-form') as HTMLFormElement;
 const tbody = document.querySelector('#results tbody') as HTMLTableSectionElement;
 const cityInput = document.getElementById('city') as HTMLInputElement;
@@ -27,14 +30,14 @@ const glCtx = canvas.getContext('webgl');
 if (!glCtx) { throw new Error('WebGL not supported'); }
 const gl: WebGLRenderingContext = glCtx;
 
-// populate city list
+// Populate city list for autocompletion
 cities.forEach(c => {
   const option = document.createElement('option');
   option.value = c.name;
   datalist.appendChild(option);
 });
 
-// WebGL setup
+// Basic WebGL shader setup
 const vertexSrc = `
 attribute vec2 position;
 void main(){
@@ -65,6 +68,7 @@ gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 gl.enableVertexAttribArray(posLoc);
 gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
+// Draw the zodiac wheel and sign dividers
 function drawWheel() {
   const segments = 360;
   const verts: number[] = [];
@@ -85,6 +89,7 @@ function drawWheel() {
 
 drawWheel();
 
+// Plot planets on the wheel using their longitudes
 function drawPlanets(planets: PlanetResult[]) {
   planets.forEach(p => {
     const angle = (p.longitude * Math.PI) / 180;
@@ -101,6 +106,7 @@ function drawPlanets(planets: PlanetResult[]) {
   });
 }
 
+// Build the HTML table showing calculation results
 function buildTable(planets: PlanetResult[]) {
   tbody.innerHTML = '';
   planets.forEach(p => {
@@ -110,6 +116,7 @@ function buildTable(planets: PlanetResult[]) {
   });
 }
 
+// Handle form submission: perform calculations and redraw
 form.addEventListener('submit', async e => {
   e.preventDefault();
   const dateStr = (document.getElementById('date') as HTMLInputElement).value;
