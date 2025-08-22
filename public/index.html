@@ -412,11 +412,18 @@
     }
 
     .chart-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 3rem;
       margin-bottom: 3rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1200px) {
+      .chart-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
     }
 
     .chart-wrapper {
@@ -473,10 +480,23 @@
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       display: block;
       margin: 0 auto;
-      width: 700px;
-      height: 700px;
-      max-width: 90vw;
-      max-height: 70vh;
+      width: 500px;
+      height: 500px;
+      max-width: 100%;
+      max-height: 500px;
+    }
+
+    #moon-chart {
+      border: 3px solid var(--chart-border);
+      border-radius: 20px;
+      background: var(--chart-gradient);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      display: block;
+      margin: 0 auto;
+      width: 500px;
+      height: 500px;
+      max-width: 100%;
+      max-height: 500px;
     }
 
     .planets-table {
@@ -780,23 +800,28 @@
       <div class="chart-container">
         <div class="chart-wrapper">
           <h3 class="chart-title">Natal Chart</h3>
-          <canvas id="chart" width="700" height="700"></canvas>
+          <canvas id="chart" width="500" height="500"></canvas>
         </div>
         
-        <div class="data-section">
-          <h3 class="data-title">Planetary Details</h3>
-          <table class="planets-table" id="planets-table">
-            <thead>
-              <tr>
-                <th>Planet</th>
-                <th>Sign</th>
-                <th>Longitude</th>
-                <th>Retrograde</th>
-              </tr>
-            </thead>
-            <tbody id="planets-tbody"></tbody>
-          </table>
+        <div class="chart-wrapper">
+          <h3 class="chart-title">Moon Phase</h3>
+          <canvas id="moon-chart" width="500" height="500"></canvas>
         </div>
+      </div>
+      
+      <div class="data-section">
+        <h3 class="data-title">Planetary Details</h3>
+        <table class="planets-table" id="planets-table">
+          <thead>
+            <tr>
+              <th>Planet</th>
+              <th>Sign</th>
+              <th>Longitude</th>
+              <th>Retrograde</th>
+            </tr>
+          </thead>
+          <tbody id="planets-tbody"></tbody>
+        </table>
       </div>
     </div>
 
@@ -921,10 +946,11 @@
           themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
           localStorage.setItem('theme', newTheme);
           
-          // Redraw chart if it exists
+          // Redraw charts if they exist
           const canvas = document.getElementById('chart');
+          const moonCanvas = document.getElementById('moon-chart');
           const resultsSection = document.getElementById('results-section');
-          if (canvas && resultsSection.classList.contains('active')) {
+          if (canvas && moonCanvas && resultsSection.classList.contains('active')) {
             // Get the last calculated data from the table
             const planetsTbody = document.getElementById('planets-tbody');
             if (planetsTbody.children.length > 0) {
@@ -939,6 +965,11 @@
               // We need to reconstruct aspects data for theme switching
               // For now, we'll just redraw without aspects
               drawNatalChart(canvas, planets, []);
+              
+              // Redraw moon phase chart
+              const currentDate = new Date();
+              const moonPhase = getMoonPhase(currentDate);
+              drawMoonPhaseChart(moonCanvas, moonPhase, currentDate);
             }
           }
           
@@ -964,7 +995,7 @@
         console.log('Test data button listener added');
       }
       
-      // Chinese Zodiac mapping
+      // Chinese Zodiac mapping (corrected)
       const chineseZodiac = {
         2024: { animal: 'Dragon', symbol: '🐉', element: 'Wood' },
         2023: { animal: 'Rabbit', symbol: '🐰', element: 'Water' },
@@ -978,8 +1009,40 @@
         2015: { animal: 'Goat', symbol: '🐐', element: 'Wood' },
         2014: { animal: 'Horse', symbol: '🐎', element: 'Wood' },
         2013: { animal: 'Snake', symbol: '🐍', element: 'Water' },
-        2012: { animal: 'Dragon', symbol: '🐉', element: 'Water' }
+        2012: { animal: 'Dragon', symbol: '🐉', element: 'Water' },
+        2011: { animal: 'Rabbit', symbol: '🐰', element: 'Metal' },
+        2010: { animal: 'Tiger', symbol: '🐯', element: 'Metal' },
+        2009: { animal: 'Ox', symbol: '🐂', element: 'Earth' },
+        2008: { animal: 'Rat', symbol: '🐀', element: 'Earth' },
+        2007: { animal: 'Pig', symbol: '🐷', element: 'Fire' },
+        2006: { animal: 'Dog', symbol: '🐕', element: 'Fire' },
+        2005: { animal: 'Rooster', symbol: '🐔', element: 'Wood' },
+        2004: { animal: 'Monkey', symbol: '🐒', element: 'Wood' },
+        2003: { animal: 'Goat', symbol: '🐐', element: 'Water' },
+        2002: { animal: 'Horse', symbol: '🐎', element: 'Water' },
+        2001: { animal: 'Snake', symbol: '🐍', element: 'Metal' },
+        2000: { animal: 'Dragon', symbol: '🐉', element: 'Metal' }
       };
+
+      // Moon phase calculation function
+      function getMoonPhase(date) {
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        
+        // Simple moon phase calculation (approximate)
+        const phase = (year * 12.3685 + month + day / 30) % 29.53;
+        
+        if (phase < 3.69) return { phase: 'New Moon', symbol: '🌑', percentage: 0 };
+        if (phase < 7.38) return { phase: 'Waxing Crescent', symbol: '🌒', percentage: 25 };
+        if (phase < 11.07) return { phase: 'First Quarter', symbol: '🌓', percentage: 50 };
+        if (phase < 14.76) return { phase: 'Waxing Gibbous', symbol: '🌔', percentage: 75 };
+        if (phase < 18.45) return { phase: 'Full Moon', symbol: '🌕', percentage: 100 };
+        if (phase < 22.14) return { phase: 'Waning Gibbous', symbol: '🌖', percentage: 75 };
+        if (phase < 25.83) return { phase: 'Last Quarter', symbol: '🌗', percentage: 50 };
+        if (phase < 29.53) return { phase: 'Waning Crescent', symbol: '🌘', percentage: 25 };
+        return { phase: 'New Moon', symbol: '🌑', percentage: 0 };
+      }
 
       // Natal chart drawing function
       function drawNatalChart(canvas, planets, aspects = [], birthYear = new Date().getFullYear()) {
@@ -1200,6 +1263,82 @@
         ctx.fillText('NATAL CHART', centerX, 20);
         ctx.shadowBlur = 0;
       }
+
+      // Moon phase chart drawing function
+      function drawMoonPhaseChart(canvas, moonPhase, birthDate) {
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = Math.min(centerX, centerY) - 80;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Create beautiful gradient background
+        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius * 1.5);
+        const chartGradient = getComputedStyle(document.documentElement).getPropertyValue('--chart-gradient');
+        
+        if (chartGradient.includes('linear-gradient')) {
+          const colors = chartGradient.match(/#[a-fA-F0-9]{6}/g) || ['#e0e7ff', '#c7d2fe', '#a5b4fc'];
+          gradient.addColorStop(0, colors[0]);
+          gradient.addColorStop(0.5, colors[1] || colors[0]);
+          gradient.addColorStop(1, colors[2] || colors[0]);
+        } else {
+          gradient.addColorStop(0, '#e0e7ff');
+          gradient.addColorStop(0.5, '#c7d2fe');
+          gradient.addColorStop(1, '#a5b4fc');
+        }
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw outer circle with glow
+        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-border');
+        ctx.lineWidth = 4;
+        ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-border');
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        
+        // Draw moon phase symbol (large)
+        ctx.font = 'bold 120px Arial';
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.shadowBlur = 8;
+        ctx.fillText(moonPhase.symbol, centerX, centerY - 40);
+        ctx.shadowBlur = 0;
+        
+        // Draw moon phase name
+        ctx.font = 'bold 24px Arial';
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.shadowBlur = 4;
+        ctx.fillText(moonPhase.phase, centerX, centerY + 60);
+        ctx.shadowBlur = 0;
+        
+        // Draw date
+        ctx.font = 'bold 18px Arial';
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(birthDate.toLocaleDateString(), centerX, centerY + 100);
+        
+        // Draw chart title
+        ctx.font = 'bold 24px Arial';
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.shadowBlur = 6;
+        ctx.fillText('MOON PHASE', centerX, 20);
+        ctx.shadowBlur = 0;
+      }
       
       // Add form submission
       const form = document.getElementById('chart-form');
@@ -1309,6 +1448,14 @@
               // Pass birth year for Chinese zodiac
               const birthYear = parseInt(year);
               drawNatalChart(canvas, data.planets, data.aspects, birthYear);
+            }
+
+            // Calculate and draw moon phase
+            const moonCanvas = document.getElementById('moon-chart');
+            if (moonCanvas) {
+              const birthDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+              const moonPhase = getMoonPhase(birthDate);
+              drawMoonPhaseChart(moonCanvas, moonPhase, birthDate);
             }
             
             // Show results section
