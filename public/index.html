@@ -22,6 +22,10 @@
       --border-color: #e2e8f0;
       --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      --chart-gradient: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%);
+      --chart-border: #6366f1;
+      --chart-text: #3730a3;
+      --chart-aspects: #8b5cf6;
       --stars: radial-gradient(2px 2px at 20px 30px, #eee, transparent),
                 radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
                 radial-gradient(1px 1px at 90px 40px, #fff, transparent),
@@ -42,6 +46,10 @@
       --gradient: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 25%, #2d1b69 50%, #4c1d95 75%, #7c3aed 100%);
       --button-gradient: linear-gradient(135deg, #8b5cf6 0%, #a855f7 25%, #c084fc 50%, #d8b4fe 75%, #f3e8ff 100%);
       --table-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 25%, #4338ca 50%, #3730a3 75%, #312e81 100%);
+      --chart-gradient: linear-gradient(135deg, #1e1b4b 0%, #312e81 25%, #4338ca 50%, #6366f1 75%, #8b5cf6 100%);
+      --chart-border: #c084fc;
+      --chart-text: #f3e8ff;
+      --chart-aspects: #a855f7;
       --stars: radial-gradient(2px 2px at 20px 30px, #fff, transparent),
                 radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
                 radial-gradient(1px 1px at 90px 40px, #fff, transparent),
@@ -407,10 +415,15 @@
       grid-template-columns: 1fr 1fr;
       gap: 3rem;
       margin-bottom: 3rem;
+      align-items: start;
     }
 
     .chart-wrapper {
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
     .chart-title {
@@ -430,16 +443,16 @@
     }
 
     #chart {
-      border: 2px solid var(--border-color);
-      border-radius: 16px;
-      background: var(--bg-primary);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border: 3px solid var(--chart-border);
+      border-radius: 20px;
+      background: var(--chart-gradient);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       display: block;
       margin: 0 auto;
       max-width: 100%;
       height: auto;
-      width: 500px;
-      height: 500px;
+      width: 600px;
+      height: 600px;
     }
 
     .planets-table {
@@ -923,112 +936,169 @@
         console.log('Test data button listener added');
       }
       
+      // Chinese Zodiac mapping
+      const chineseZodiac = {
+        2024: { animal: 'Dragon', symbol: '🐉', element: 'Wood' },
+        2023: { animal: 'Rabbit', symbol: '🐰', element: 'Water' },
+        2022: { animal: 'Tiger', symbol: '🐯', element: 'Water' },
+        2021: { animal: 'Ox', symbol: '🐂', element: 'Metal' },
+        2020: { animal: 'Rat', symbol: '🐀', element: 'Metal' },
+        2019: { animal: 'Pig', symbol: '🐷', element: 'Earth' },
+        2018: { animal: 'Dog', symbol: '🐕', element: 'Earth' },
+        2017: { animal: 'Rooster', symbol: '🐔', element: 'Fire' },
+        2016: { animal: 'Monkey', symbol: '🐒', element: 'Fire' },
+        2015: { animal: 'Goat', symbol: '🐐', element: 'Wood' },
+        2014: { animal: 'Horse', symbol: '🐎', element: 'Wood' },
+        2013: { animal: 'Snake', symbol: '🐍', element: 'Water' },
+        2012: { animal: 'Dragon', symbol: '🐉', element: 'Water' }
+      };
+
       // Natal chart drawing function
-      function drawNatalChart(canvas, planets, aspects = []) {
+      function drawNatalChart(canvas, planets, aspects = [], birthYear = new Date().getFullYear()) {
         const ctx = canvas.getContext('2d');
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
-        const radius = Math.min(centerX, centerY) - 60;
+        const radius = Math.min(centerX, centerY) - 80;
         
         // Clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Set background
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary');
+        // Create beautiful gradient background
+        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius * 1.5);
+        const chartGradient = getComputedStyle(document.documentElement).getPropertyValue('--chart-gradient');
+        
+        if (chartGradient.includes('linear-gradient')) {
+          // Extract colors from CSS gradient
+          const colors = chartGradient.match(/#[a-fA-F0-9]{6}/g) || ['#e0e7ff', '#c7d2fe', '#a5b4fc'];
+          gradient.addColorStop(0, colors[0]);
+          gradient.addColorStop(0.5, colors[1] || colors[0]);
+          gradient.addColorStop(1, colors[2] || colors[0]);
+        } else {
+          gradient.addColorStop(0, '#e0e7ff');
+          gradient.addColorStop(0.5, '#c7d2fe');
+          gradient.addColorStop(1, '#a5b4fc');
+        }
+        
+        ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // Draw outer zodiac wheel
-        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--border-color');
-        ctx.lineWidth = 3;
+        // Draw outer zodiac wheel with glow effect
+        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-border');
+        ctx.lineWidth = 4;
+        ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-border');
+        ctx.shadowBlur = 10;
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
         ctx.stroke();
         
-        // Draw house divisions (12 houses)
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary');
+        // Reset shadow
+        ctx.shadowBlur = 0;
+        
+        // Draw house divisions (12 houses) with aesthetic lines
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.globalAlpha = 0.6;
         for (let i = 0; i < 12; i++) {
           const angle = (i * 30 - 90) * Math.PI / 180; // Start from Ascendant (left)
           const x1 = centerX + Math.cos(angle) * radius;
           const y1 = centerY + Math.sin(angle) * radius;
-          const x2 = centerX + Math.cos(angle) * (radius * 0.7);
-          const y2 = centerY + Math.sin(angle) * (radius * 0.7);
+          const x2 = centerX + Math.cos(angle) * (radius * 0.65);
+          const y2 = centerY + Math.sin(angle) * (radius * 0.65);
           ctx.beginPath();
           ctx.moveTo(x1, y1);
           ctx.lineTo(x2, y2);
           ctx.stroke();
           
-          // Draw house numbers
+          // Draw house numbers with glow
           const houseAngle = (i * 30 - 75) * Math.PI / 180;
-          const houseX = centerX + Math.cos(houseAngle) * (radius * 0.85);
-          const houseY = centerY + Math.sin(houseAngle) * (radius * 0.85);
-          ctx.font = '14px Arial';
-          ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-primary');
+          const houseX = centerX + Math.cos(houseAngle) * (radius * 0.8);
+          const houseY = centerY + Math.sin(houseAngle) * (radius * 0.8);
+          ctx.font = 'bold 16px Arial';
+          ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
+          ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+          ctx.shadowBlur = 3;
           ctx.fillText((i + 1).toString(), houseX, houseY);
         }
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
         
-        // Draw inner circle for planets
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--border-color');
+        // Draw inner circle for planets with glow
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-border');
+        ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-border');
+        ctx.shadowBlur = 8;
         ctx.beginPath();
-        ctx.arc(centerX, centerY, radius * 0.6, 0, 2 * Math.PI);
+        ctx.arc(centerX, centerY, radius * 0.55, 0, 2 * Math.PI);
         ctx.stroke();
+        ctx.shadowBlur = 0;
         
-        // Draw zodiac signs on outer ring
+        // Draw zodiac signs on outer ring with glow
         const signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 
                       'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
         const signSymbols = ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓'];
         
-        ctx.font = '18px Arial';
+        ctx.font = 'bold 22px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-primary');
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.shadowBlur = 5;
         
         signs.forEach((sign, index) => {
           const angle = (index * 30 - 15) * Math.PI / 180; // Start from Aries (0°)
-          const x = centerX + Math.cos(angle) * (radius * 0.95);
-          const y = centerY + Math.sin(angle) * (radius * 0.95);
+          const x = centerX + Math.cos(angle) * (radius * 0.92);
+          const y = centerY + Math.sin(angle) * (radius * 0.92);
           ctx.fillText(signSymbols[index], x, y);
         });
+        ctx.shadowBlur = 0;
         
-        // Draw planets
+        // Draw planets with glow effects
         const planetSymbols = {
           'Sun': '☉', 'Moon': '☾', 'Mercury': '☿', 'Venus': '♀', 'Mars': '♂',
           'Jupiter': '♃', 'Saturn': '♄', 'Uranus': '♅', 'Neptune': '♆', 'Pluto': '♇',
           'Mean Node': '☊', 'True Node': '☋', 'Chiron': '⚷'
         };
         
-        ctx.font = '24px Arial';
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-primary');
+        ctx.font = 'bold 28px Arial';
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.shadowBlur = 6;
         
         const planetPositions = [];
         planets.forEach(planet => {
           const angle = (planet.longitude - 90) * Math.PI / 180; // Start from Ascendant (left)
-          const x = centerX + Math.cos(angle) * (radius * 0.5);
-          const y = centerY + Math.sin(angle) * (radius * 0.5);
+          const x = centerX + Math.cos(angle) * (radius * 0.45);
+          const y = centerY + Math.sin(angle) * (radius * 0.45);
           
           planetPositions.push({ name: planet.name, x, y, symbol: planetSymbols[planet.name] || planet.name.charAt(0), retrograde: planet.retrograde });
           
-          // Draw planet symbol
+          // Draw planet symbol with glow
           ctx.fillText(planetSymbols[planet.name] || planet.name.charAt(0), x, y);
           
           // Draw retrograde symbol if applicable
           if (planet.retrograde) {
-            ctx.font = '12px Arial';
+            ctx.font = 'bold 14px Arial';
             ctx.fillStyle = '#ef4444';
-            ctx.fillText('R', x + 15, y - 10);
-            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-primary');
+            ctx.shadowColor = '#ef4444';
+            ctx.shadowBlur = 4;
+            ctx.fillText('R', x + 18, y - 12);
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+            ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+            ctx.shadowBlur = 6;
           }
           
           // Reset font for next planet
-          ctx.font = '24px Arial';
+          ctx.font = 'bold 28px Arial';
         });
+        ctx.shadowBlur = 0;
         
-        // Draw aspects (connecting lines between planets)
+        // Draw aspects (connecting lines between planets) with glow
         if (aspects && aspects.length > 0) {
-          ctx.lineWidth = 1.5;
+          ctx.lineWidth = 2;
+          ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-aspects');
+          ctx.shadowBlur = 4;
           
           aspects.forEach(aspect => {
             // Find the planets involved in this aspect
@@ -1054,30 +1124,53 @@
                   ctx.strokeStyle = '#8b5cf6'; // Purple
                   break;
                 default:
-                  ctx.strokeStyle = '#6b7280'; // Gray
+                  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-aspects');
               }
               
-              // Draw the aspect line
+              // Draw the aspect line with glow
               ctx.beginPath();
               ctx.moveTo(planet1.x, planet1.y);
               ctx.lineTo(planet2.x, planet2.y);
               ctx.stroke();
             }
           });
+          ctx.shadowBlur = 0;
         }
         
-        // Draw center point
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-primary');
+        // Draw center point with glow
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.shadowBlur = 8;
         ctx.beginPath();
-        ctx.arc(centerX, centerY, 4, 0, 2 * Math.PI);
+        ctx.arc(centerX, centerY, 6, 0, 2 * Math.PI);
         ctx.fill();
+        ctx.shadowBlur = 0;
         
-        // Draw chart title
-        ctx.font = 'bold 20px Arial';
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-primary');
+        // Get Chinese zodiac for birth year
+        const chineseYear = chineseZodiac[birthYear] || chineseZodiac[2024];
+        
+        // Draw Chinese zodiac year in center
+        ctx.font = 'bold 16px Arial';
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.shadowBlur = 4;
+        ctx.fillText(chineseYear.symbol, centerX, centerY - 25);
+        ctx.font = 'bold 12px Arial';
+        ctx.fillText(chineseYear.animal, centerX, centerY + 10);
+        ctx.fillText(chineseYear.element, centerX, centerY + 25);
+        ctx.shadowBlur = 0;
+        
+        // Draw chart title with glow
+        ctx.font = 'bold 24px Arial';
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
+        ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.shadowBlur = 6;
         ctx.fillText('NATAL CHART', centerX, 20);
+        ctx.shadowBlur = 0;
       }
       
       // Add form submission
@@ -1185,7 +1278,9 @@
             // Draw natal chart
             const canvas = document.getElementById('chart');
             if (canvas && data.planets) {
-              drawNatalChart(canvas, data.planets, data.aspects);
+              // Pass birth year for Chinese zodiac
+              const birthYear = parseInt(year);
+              drawNatalChart(canvas, data.planets, data.aspects, birthYear);
             }
             
             // Show results section
