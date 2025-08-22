@@ -12,6 +12,7 @@ export function calcFallback(date: Date, lon: number, lat: number): PlanetResult
   return NAMES.map(name => ({
     name,
     sign: 'Aries',        // all planets at 0° Aries
+    element: 'Fire',      // Aries is Fire element
     longitude: 0,
     retrograde: false
   }));

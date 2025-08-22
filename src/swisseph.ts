@@ -5,6 +5,7 @@ import * as path from 'path';
 export interface PlanetResult {
   name: string;
   sign: string;
+  element: string;
   longitude: number;
   retrograde: boolean;
 }
@@ -32,9 +33,57 @@ const SIGNS = [
   'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
 ];
 
+// Element associations for each sign
+const SIGN_ELEMENTS = {
+  'Aries': 'Fire',
+  'Taurus': 'Earth',
+  'Gemini': 'Air',
+  'Cancer': 'Water',
+  'Leo': 'Fire',
+  'Virgo': 'Earth',
+  'Libra': 'Air',
+  'Scorpio': 'Water',
+  'Sagittarius': 'Fire',
+  'Capricorn': 'Earth',
+  'Aquarius': 'Air',
+  'Pisces': 'Water'
+};
+
+// Element interface
+export interface ElementCount {
+  Fire: number;
+  Earth: number;
+  Air: number;
+  Water: number;
+}
+
 // Convert an ecliptic longitude in degrees to a zodiac sign
 function zodiacSign(longitude: number): string {
   return SIGNS[Math.floor(longitude / 30) % 12];
+}
+
+// Get element for a zodiac sign
+function getElement(sign: string): string {
+  return SIGN_ELEMENTS[sign as keyof typeof SIGN_ELEMENTS] || 'Unknown';
+}
+
+// Count elements from planetary positions
+function countElements(planets: PlanetResult[]): ElementCount {
+  const counts: ElementCount = {
+    Fire: 0,
+    Earth: 0,
+    Air: 0,
+    Water: 0
+  };
+
+  planets.forEach(planet => {
+    const element = getElement(planet.sign);
+    if (element in counts) {
+      counts[element as keyof ElementCount]++;
+    }
+  });
+
+  return counts;
 }
 
 // Initialize Swiss Ephemeris with ephemeris data path
@@ -72,9 +121,11 @@ export function initSwissEph(ephePath = './ephe') {
           const longitude = (result as any).longitude;
           const speed = (result as any).longitudeSpeed;
 
+          const sign = zodiacSign(longitude);
           results.push({
             name: p.name,
-            sign: zodiacSign(longitude),
+            sign: sign,
+            element: getElement(sign),
             longitude: longitude,
             retrograde: speed < 0
           });
@@ -172,6 +223,7 @@ export function initSwissEph(ephePath = './ephe') {
     calcPlanets, 
     calcHouses, 
     calcAspects,
+    countElements,
     // Expose some useful constants
     constants: {
       SE_SUN: swisseph.SE_SUN,

@@ -719,6 +719,82 @@
       100% { transform: rotate(360deg); }
     }
 
+    .element-counts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .element-card {
+      background: var(--bg-secondary);
+      padding: 1.5rem;
+      border-radius: 16px;
+      border: 2px solid var(--border-color);
+      box-shadow: var(--shadow);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .element-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .element-card.fire {
+      border-color: #ef4444;
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    }
+
+    .element-card.earth {
+      border-color: #10b981;
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    }
+
+    .element-card.air {
+      border-color: #3b82f6;
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    }
+
+    .element-card.water {
+      border-color: #8b5cf6;
+      background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+    }
+
+    [data-theme="dark"] .element-card.fire {
+      background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%);
+    }
+
+    [data-theme="dark"] .element-card.earth {
+      background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+    }
+
+    [data-theme="dark"] .element-card.air {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    }
+
+    [data-theme="dark"] .element-card.water {
+      background: linear-gradient(135deg, #581c87 0%, #7c3aed 100%);
+    }
+
+    .element-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .element-name {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .element-count {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--accent-primary);
+    }
+
     @media (max-width: 768px) {
       .container {
         padding: 1rem;
@@ -834,20 +910,28 @@
         </div>
       </div>
       
-      <div class="data-section">
-        <h3 class="data-title">Planetary Details</h3>
-        <table class="planets-table" id="planets-table">
-          <thead>
-            <tr>
-              <th>Planet</th>
-              <th>Sign</th>
-              <th>Longitude</th>
-              <th>Retrograde</th>
-            </tr>
-          </thead>
-          <tbody id="planets-tbody"></tbody>
-        </table>
-      </div>
+              <div class="data-section">
+          <h3 class="data-title">Planetary Details</h3>
+          <table class="planets-table" id="planets-table">
+            <thead>
+              <tr>
+                <th>Planet</th>
+                <th>Sign</th>
+                <th>Element</th>
+                <th>Longitude</th>
+                <th>Retrograde</th>
+              </tr>
+            </thead>
+            <tbody id="planets-tbody"></tbody>
+          </table>
+        </div>
+        
+        <div class="data-section">
+          <h3 class="data-title">Element Balance</h3>
+          <div class="element-counts" id="element-counts">
+            <!-- Element counts will be populated here -->
+          </div>
+        </div>
     </div>
 
     <div class="aspects-section" id="aspects-section" style="display: none;">
@@ -1175,34 +1259,59 @@
             'Mean Node': '☊', 'True Node': '☋', 'Chiron': '⚷'
           };
           
-          data.planets.forEach(planet => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td><span class="planet-glyph">${glyphs[planet.name] || planet.name}</span> ${planet.name}</td>
-              <td>${planet.sign}</td>
-              <td>${planet.longitude.toFixed(2)}°</td>
-              <td>${planet.retrograde ? '<span class="retrograde">R</span>' : ''}</td>
-            `;
-            planetsTbody.appendChild(row);
-          });
+                     data.planets.forEach(planet => {
+             const row = document.createElement('tr');
+             row.innerHTML = `
+               <td><span class="planet-glyph">${glyphs[planet.name] || planet.name}</span> ${planet.name}</td>
+               <td>${planet.sign}</td>
+               <td>${planet.element}</td>
+               <td>${planet.longitude.toFixed(2)}°</td>
+               <td>${planet.retrograde ? '<span class="retrograde">R</span>' : ''}</td>
+             `;
+             planetsTbody.appendChild(row);
+           });
         }
         
-        // Display aspects
-        const aspectsSection = document.getElementById('aspects-section');
-        const aspectsGrid = document.getElementById('aspects-grid');
-        if (aspectsSection && aspectsGrid && data.aspects && data.aspects.length > 0) {
-          aspectsGrid.innerHTML = '';
-          data.aspects.forEach(aspect => {
-            const aspectDiv = document.createElement('div');
-            aspectDiv.className = 'aspect-item';
-            aspectDiv.innerHTML = `
-              <strong>${aspect.planet1} ${aspect.aspect} ${aspect.planet2}</strong><br>
-              Orb: ${aspect.orb.toFixed(1)}° | Exact: ${aspect.exact.toFixed(1)}°
-            `;
-            aspectsGrid.appendChild(aspectDiv);
-          });
-          aspectsSection.style.display = 'block';
-        }
+                 // Display aspects
+         const aspectsSection = document.getElementById('aspects-section');
+         const aspectsGrid = document.getElementById('aspects-grid');
+         if (aspectsSection && aspectsGrid && data.aspects && data.aspects.length > 0) {
+           aspectsGrid.innerHTML = '';
+           data.aspects.forEach(aspect => {
+             const aspectDiv = document.createElement('div');
+             aspectDiv.className = 'aspect-item';
+             aspectDiv.innerHTML = `
+               <strong>${aspect.planet1} ${aspect.aspect} ${aspect.planet2}</strong><br>
+               Orb: ${aspect.orb.toFixed(1)}° | Exact: ${aspect.exact.toFixed(1)}°
+             `;
+             aspectsGrid.appendChild(aspectDiv);
+           });
+           aspectsSection.style.display = 'block';
+         }
+         
+         // Display element counts
+         const elementCountsDiv = document.getElementById('element-counts');
+         if (elementCountsDiv && data.elementCounts) {
+           elementCountsDiv.innerHTML = '';
+           
+           const elementIcons = {
+             'Fire': '🔥',
+             'Earth': '🌍',
+             'Air': '💨',
+             'Water': '💧'
+           };
+           
+           Object.entries(data.elementCounts).forEach(([element, count]) => {
+             const elementCard = document.createElement('div');
+             elementCard.className = `element-card ${element.toLowerCase()}`;
+             elementCard.innerHTML = `
+               <div class="element-icon">${elementIcons[element] || '⭐'}</div>
+               <div class="element-name">${element}</div>
+               <div class="element-count">${count}</div>
+             `;
+             elementCountsDiv.appendChild(elementCard);
+           });
+         }
         
         // Draw charts (simplified for now)
         drawSimpleCharts(data, birthDate);

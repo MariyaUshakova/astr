@@ -1,6 +1,6 @@
 import express from 'express';
 import path from 'path';
-import { initSwissEph } from './swisseph';
+import { initSwissEph, ElementCount } from './swisseph';
 
 // Simple Express server serving static assets and compiled JS
 const app = express();
@@ -33,10 +33,14 @@ app.post('/api/calculate', (req, res) => {
     // Calculate aspects
     const aspects = swissEph.calcAspects(planets, 8);
     
+    // Count elements
+    const elementCounts = swissEph.countElements(planets);
+    
     res.json({
       planets,
       houses,
       aspects,
+      elementCounts,
       date: calculationDate.toISOString(),
       location: { longitude, latitude }
     });
