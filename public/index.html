@@ -21,28 +21,65 @@
       --accent-secondary: #8b5cf6;
       --border-color: #e2e8f0;
       --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      --stars: radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
+                radial-gradient(2px 2px at 160px 30px, #ddd, transparent);
     }
 
     [data-theme="dark"] {
       /* Dark theme variables */
-      --bg-primary: #0f172a;
-      --bg-secondary: #1e293b;
-      --text-primary: #f1f5f9;
-      --text-secondary: #94a3b8;
-      --accent-primary: #818cf8;
-      --accent-secondary: #a78bfa;
-      --border-color: #334155;
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-      --gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #1a1a2e;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --accent-primary: #ff6b6b;
+      --accent-secondary: #4ecdc4;
+      --border-color: #2d2d44;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      --gradient: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%);
+      --stars: radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
+                radial-gradient(2px 2px at 160px 30px, #ddd, transparent),
+                radial-gradient(1px 1px at 200px 60px, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 240px 20px, #fff, transparent),
+                radial-gradient(2px 2px at 280px 80px, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1px 1px at 320px 40px, #fff, transparent),
+                radial-gradient(1px 1px at 360px 70px, rgba(255,255,255,0.5), transparent);
     }
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--gradient);
+      background: var(--gradient), var(--stars);
+      background-size: 100% 100%, 400px 400px;
       color: var(--text-primary);
       min-height: 100vh;
       transition: all 0.3s ease;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--stars);
+      background-size: 400px 400px;
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: -1;
+      animation: twinkle 20s infinite linear;
+    }
+
+    @keyframes twinkle {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-400px); }
     }
 
     .container {
@@ -118,6 +155,21 @@
       padding: 2rem;
       box-shadow: var(--shadow);
       margin-bottom: 2rem;
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .input-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+      opacity: 0.7;
     }
 
     .form-grid {
@@ -146,16 +198,22 @@
       color: var(--text-primary);
       font-size: 1rem;
       transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
     }
 
     .form-input:focus {
       outline: none;
       border-color: var(--accent-primary);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .form-input:hover {
+      border-color: var(--accent-secondary);
     }
 
     .calculate-btn {
-      background: var(--gradient);
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
       color: white;
       border: none;
       padding: 0.75rem 2rem;
@@ -165,11 +223,28 @@
       cursor: pointer;
       transition: all 0.3s ease;
       height: fit-content;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .calculate-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .calculate-btn:hover::before {
+      left: 100%;
     }
 
     .calculate-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
     }
 
     .calculate-btn:disabled {
@@ -202,6 +277,21 @@
       padding: 2rem;
       box-shadow: var(--shadow);
       margin-bottom: 2rem;
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .results-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+      opacity: 0.7;
     }
 
     .results-section.active {
@@ -251,6 +341,9 @@
       width: 100%;
       border-collapse: collapse;
       margin-top: 1rem;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
     .planets-table th,
@@ -258,16 +351,25 @@
       padding: 0.75rem;
       text-align: center;
       border-bottom: 1px solid var(--border-color);
+      transition: all 0.2s ease;
     }
 
     .planets-table th {
-      background: var(--bg-primary);
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
       font-weight: 600;
-      color: var(--text-primary);
+      color: white;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
 
     .planets-table td {
       color: var(--text-secondary);
+      background: var(--bg-primary);
+    }
+
+    .planets-table tr:hover td {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      transform: scale(1.01);
     }
 
     .planet-glyph {
@@ -284,6 +386,21 @@
       border-radius: 16px;
       padding: 2rem;
       box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .aspects-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+      opacity: 0.7;
     }
 
     .aspects-title {
@@ -305,6 +422,25 @@
       border-radius: 8px;
       border: 1px solid var(--border-color);
       color: var(--text-secondary);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .aspect-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+    }
+
+    .aspect-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border-color: var(--accent-primary);
     }
 
     .aspect-card {
@@ -335,6 +471,11 @@
       text-align: center;
       padding: 2rem;
       color: var(--text-secondary);
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      margin: 2rem 0;
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(10px);
     }
 
     .loading.active {
@@ -342,13 +483,27 @@
     }
 
     .spinner {
-      border: 3px solid var(--border-color);
-      border-top: 3px solid var(--accent-primary);
+      border: 4px solid var(--border-color);
+      border-top: 4px solid var(--accent-primary);
       border-radius: 50%;
-      width: 30px;
-      height: 30px;
+      width: 40px;
+      height: 40px;
       animation: spin 1s linear infinite;
       margin: 0 auto 1rem;
+      position: relative;
+    }
+
+    .spinner::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      right: -4px;
+      bottom: -4px;
+      border: 2px solid transparent;
+      border-top: 2px solid var(--accent-secondary);
+      border-radius: 50%;
+      animation: spin 2s linear infinite reverse;
     }
 
     @keyframes spin {
