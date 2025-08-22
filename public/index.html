@@ -40,6 +40,8 @@
       --border-color: #2d2d44;
       --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
       --gradient: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%);
+      --button-gradient: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 25%, #ffb3b3 50%, #ffd6d6 75%, #ffffff 100%);
+      --table-gradient: linear-gradient(135deg, #4ecdc4 0%, #44a08d 25%, #3a7c6f 50%, #2f5a52 75%, #243835 100%);
       --stars: radial-gradient(2px 2px at 20px 30px, #fff, transparent),
                 radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
                 radial-gradient(1px 1px at 90px 40px, #fff, transparent),
@@ -99,6 +101,14 @@
       margin-bottom: 1rem;
       color: var(--text-primary);
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    [data-theme="dark"] .title {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 25%, #ffb3b3 50%, #ffd6d6 75%, #ffffff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
     }
 
     .description {
@@ -227,6 +237,13 @@
       overflow: hidden;
     }
 
+    [data-theme="dark"] .calculate-btn {
+      background: var(--button-gradient);
+      color: #1a1a2e;
+      font-weight: 700;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+    }
+
     .calculate-btn::before {
       content: '';
       position: absolute;
@@ -268,6 +285,19 @@
     .test-data:hover {
       background: #059669;
       transform: translateY(-1px);
+    }
+
+    [data-theme="dark"] .test-data {
+      background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 50%, #3a7c6f 100%);
+      color: white;
+      font-weight: 700;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    [data-theme="dark"] .test-data:hover {
+      background: linear-gradient(135deg, #5edfd6 0%, #54b29f 50%, #4a8e81 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
     }
 
     .results-section {
@@ -313,6 +343,13 @@
       color: var(--text-primary);
     }
 
+    [data-theme="dark"] .results-title {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 25%, #ffb3b3 50%, #ffd6d6 75%, #ffffff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
     .chart-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -329,6 +366,14 @@
       font-weight: 600;
       margin-bottom: 1rem;
       color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .chart-title {
+      background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 50%, #3a7c6f 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
     }
 
     #chart {
@@ -359,6 +404,13 @@
       font-weight: 600;
       color: white;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    [data-theme="dark"] .planets-table th {
+      background: var(--table-gradient);
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     }
 
     .planets-table td {
@@ -408,6 +460,13 @@
       font-weight: 700;
       margin-bottom: 1rem;
       color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .aspects-title {
+      background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 50%, #3a7c6f 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .aspects-grid {
