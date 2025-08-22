@@ -14,7 +14,6 @@ const cities = [
     { name: 'Rio de Janeiro, Brazil', lat: -22.9068, lon: -43.1729 },
     { name: 'Cape Town, South Africa', lat: -33.9249, lon: 18.4241 },
     { name: 'Toronto, Canada', lat: 43.6532, lon: -79.3832 },
-    { name: 'Mexico City, Mexico', lat: 19.4326, lon: -99.1332 },
-    { name: 'KHARKIV', lat: 49.9935, lon: 36.2304 }
+    { name: 'Mexico City, Mexico', lat: 19.4326, lon: -99.1332 }
 ];
 export default cities;

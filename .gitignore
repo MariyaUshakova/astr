@@ -9,3 +9,7 @@ npm-debug.log
 # generated Swiss Ephemeris artifacts
 /public/swisseph.js
 /public/swisseph.wasm
+
+# macOS system files
+.DS_Store
+**/.DS_Store
