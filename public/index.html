@@ -4,820 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Natal Chart Calculator</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    :root {
-      /* Light theme variables */
-      --bg-primary: #f8fafc;
-      --bg-secondary: #ffffff;
-      --text-primary: #1e293b;
-      --text-secondary: #64748b;
-      --accent-primary: #6366f1;
-      --accent-secondary: #8b5cf6;
-      --border-color: #e2e8f0;
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-      --chart-gradient: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%);
-      --chart-border: #6366f1;
-      --chart-text: #3730a3;
-      --chart-aspects: #8b5cf6;
-      --stars: radial-gradient(2px 2px at 20px 30px, #eee, transparent),
-                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
-                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
-                radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
-                radial-gradient(2px 2px at 160px 30px, #ddd, transparent);
-    }
-
-    [data-theme="dark"] {
-      /* Dark theme variables - Astrological Blue-Violet Palette */
-      --bg-primary: #0a0a1a;
-      --bg-secondary: #1a1a3a;
-      --text-primary: #ffffff;
-      --text-secondary: #b8b8d8;
-      --accent-primary: #8b5cf6;
-      --accent-secondary: #6366f1;
-      --border-color: #2d2d5a;
-      --shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-      --gradient: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 25%, #2d1b69 50%, #4c1d95 75%, #7c3aed 100%);
-      --button-gradient: linear-gradient(135deg, #8b5cf6 0%, #a855f7 25%, #c084fc 50%, #d8b4fe 75%, #f3e8ff 100%);
-      --table-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 25%, #4338ca 50%, #3730a3 75%, #312e81 100%);
-      --chart-gradient: linear-gradient(135deg, #1e1b4b 0%, #312e81 25%, #4338ca 50%, #6366f1 75%, #8b5cf6 100%);
-      --chart-border: #c084fc;
-      --chart-text: #f3e8ff;
-      --chart-aspects: #a855f7;
-      --stars: radial-gradient(2px 2px at 20px 30px, #fff, transparent),
-                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
-                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
-                radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
-                radial-gradient(2px 2px at 160px 30px, #ddd, transparent),
-                radial-gradient(1px 1px at 200px 60px, rgba(255,255,255,0.4), transparent),
-                radial-gradient(1px 1px at 240px 20px, #fff, transparent),
-                radial-gradient(2px 2px at 280px 80px, rgba(255,255,255,0.7), transparent),
-                radial-gradient(1px 1px at 320px 40px, #fff, transparent),
-                radial-gradient(1px 1px at 360px 70px, rgba(255,255,255,0.5), transparent);
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-      background: var(--gradient), var(--stars);
-      background-size: 100% 100%, 400px 400px;
-      color: var(--text-primary);
-      min-height: 100vh;
-      transition: all 0.3s ease;
-      position: relative;
-      line-height: 1.6;
-      font-feature-settings: 'liga' 1, 'kern' 1;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: var(--stars);
-      background-size: 400px 400px;
-      opacity: 0.3;
-      pointer-events: none;
-      z-index: -1;
-      animation: twinkle 20s infinite linear;
-    }
-
-    @keyframes twinkle {
-      0% { transform: translateY(0px); }
-      100% { transform: translateY(-400px); }
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 3rem 2rem;
-      position: relative;
-      z-index: 1;
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 3rem;
-      position: relative;
-    }
-
-    .title {
-      font-size: 3.5rem;
-      font-weight: 800;
-      margin-bottom: 1.5rem;
-      color: var(--text-primary);
-      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-      letter-spacing: -0.02em;
-      line-height: 1.1;
-    }
-
-    [data-theme="dark"] .title {
-      background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 25%, #c084fc 50%, #d8b4fe 75%, #f3e8ff 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-shadow: none;
-    }
-
-    .description {
-      font-size: 1.2rem;
-      color: var(--text-secondary);
-      max-width: 700px;
-      margin: 0 auto 2rem;
-      line-height: 1.7;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-      font-weight: 400;
-      letter-spacing: 0.01em;
-    }
-
-    .controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 3rem;
-      position: relative;
-    }
-
-
-
-    .theme-toggle {
-      background: var(--bg-secondary);
-      border: 2px solid var(--border-color);
-      border-radius: 50%;
-      width: 56px;
-      height: 56px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(10px);
-    }
-
-    .theme-toggle:hover {
-      transform: scale(1.05) translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    }
-
-    .theme-toggle:active {
-      transform: scale(0.98);
-    }
-
-    .theme-icon {
-      font-size: 1.4rem;
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
-    }
-
-    [data-theme="light"] .theme-icon {
-      transform: rotate(0deg);
-    }
-
-    [data-theme="dark"] .theme-icon {
-      transform: rotate(180deg);
-    }
-
-    .input-card {
-      background: var(--bg-secondary);
-      border-radius: 24px;
-      padding: 3rem;
-      box-shadow: var(--shadow);
-      margin-bottom: 3rem;
-      border: 1px solid var(--border-color);
-      backdrop-filter: blur(20px);
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .input-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-    }
-
-    .input-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-      opacity: 0.7;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 2rem;
-      align-items: end;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .form-label {
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-      color: var(--text-primary);
-      font-size: 0.95rem;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-      opacity: 0.9;
-    }
-
-    .form-input {
-      padding: 1rem 1.25rem;
-      border: 2px solid var(--border-color);
-      border-radius: 12px;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      font-size: 1rem;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      backdrop-filter: blur(10px);
-      font-weight: 500;
-      letter-spacing: 0.01em;
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: var(--accent-primary);
-      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
-      transform: translateY(-2px);
-    }
-
-    .form-input:hover {
-      border-color: var(--accent-secondary);
-      transform: translateY(-1px);
-    }
-
-    .calculate-btn {
-      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-      color: white;
-      border: none;
-      padding: 1rem 2.5rem;
-      border-radius: 16px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      height: fit-content;
-      position: relative;
-      overflow: hidden;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    [data-theme="dark"] .calculate-btn {
-      background: var(--button-gradient);
-      color: #0a0a1a;
-      font-weight: 700;
-      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
-    }
-
-    .calculate-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: left 0.5s;
-    }
-
-    .calculate-btn:hover::before {
-      left: 100%;
-    }
-
-    .calculate-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 32px rgba(99, 102, 241, 0.4);
-    }
-
-    .calculate-btn:active {
-      transform: translateY(-1px);
-    }
-
-    .calculate-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .test-data {
-      background: #10b981;
-      color: white;
-      padding: 1rem 2rem;
-      border-radius: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      text-align: center;
-      margin-bottom: 3rem;
-      font-size: 1rem;
-      letter-spacing: 0.02em;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-    }
-
-    .test-data:hover {
-      background: #059669;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
-    }
-
-    [data-theme="dark"] .test-data {
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%);
-      color: white;
-      font-weight: 700;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    }
-
-    [data-theme="dark"] .test-data:hover {
-      background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #5b21b6 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
-    }
-
-    .results-section {
-      display: none;
-      background: var(--bg-secondary);
-      border-radius: 24px;
-      padding: 3rem;
-      box-shadow: var(--shadow);
-      margin-bottom: 3rem;
-      border: 1px solid var(--border-color);
-      backdrop-filter: blur(20px);
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      text-align: center;
-    }
-
-    .results-section:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-    }
-
-    .results-section::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-      opacity: 0.7;
-    }
-
-    .results-section.active {
-      display: block;
-    }
-
-    .results-header {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 2px solid var(--border-color);
-    }
-
-    .results-title {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--text-primary);
-      letter-spacing: -0.02em;
-      margin-bottom: 0.5rem;
-    }
-
-    [data-theme="dark"] .results-title {
-      background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 25%, #c084fc 50%, #d8b4fe 75%, #f3e8ff 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .chart-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 2rem;
-      margin-bottom: 3rem;
-      align-items: start;
-    }
-
-    @media (max-width: 1400px) {
-      .chart-container {
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-      }
-    }
-
-    @media (max-width: 900px) {
-      .chart-container {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-      }
-    }
-
-    .chart-wrapper {
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      margin-bottom: 4rem;
-    }
-
-    .data-section {
-      width: 100%;
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-
-    .data-title {
-      font-size: 1.8rem;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-      color: var(--text-primary);
-      letter-spacing: -0.01em;
-    }
-
-    [data-theme="dark"] .data-title {
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 25%, #4338ca 50%, #3730a3 75%, #312e81 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .chart-title {
-      font-size: 2rem;
-      font-weight: 800;
-      margin-bottom: 2rem;
-      color: var(--text-primary);
-      letter-spacing: -0.02em;
-    }
-
-    [data-theme="dark"] .chart-title {
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 25%, #4338ca 50%, #3730a3 75%, #312e81 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-weight: 700;
-    }
-
-    #chart {
-      border: 3px solid var(--chart-border);
-      border-radius: 20px;
-      background: var(--chart-gradient);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      display: block;
-      margin: 0 auto;
-      width: 500px;
-      height: 500px;
-      max-width: 100%;
-      max-height: 500px;
-    }
-
-    #moon-chart {
-      border: 3px solid var(--chart-border);
-      border-radius: 20px;
-      background: var(--chart-gradient);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      display: block;
-      margin: 0 auto;
-      width: 400px;
-      height: 400px;
-      max-width: 100%;
-      max-height: 400px;
-    }
-
-    #chinese-zodiac-chart {
-      border: 3px solid var(--chart-border);
-      border-radius: 20px;
-      background: var(--chart-gradient);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      display: block;
-      margin: 0 auto;
-      width: 400px;
-      height: 400px;
-      max-width: 100%;
-      max-height: 400px;
-    }
-
-    .planets-table {
-      width: 100%;
-      max-width: 800px;
-      border-collapse: collapse;
-      margin: 0 auto;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    }
-
-    .planets-table th,
-    .planets-table td {
-      padding: 1rem 1.25rem;
-      text-align: center;
-      border-bottom: 1px solid var(--border-color);
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .planets-table th {
-      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-      font-weight: 600;
-      color: white;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    }
-
-    [data-theme="dark"] .planets-table th {
-      background: var(--table-gradient);
-      font-weight: 700;
-      color: white;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    }
-
-    .planets-table td {
-      color: var(--text-secondary);
-      background: var(--bg-primary);
-    }
-
-    .planets-table tr:hover td {
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-      transform: scale(1.02);
-    }
-
-    .planet-glyph {
-      font-size: 1.2rem;
-    }
-
-    .retrograde {
-      color: #ef4444;
-      font-weight: 600;
-    }
-
-    .aspects-section {
-      background: var(--bg-secondary);
-      border-radius: 24px;
-      padding: 3rem;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border-color);
-      backdrop-filter: blur(20px);
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .aspects-section:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-    }
-
-    .aspects-section::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-      opacity: 0.7;
-    }
-
-    .aspects-title {
-      font-size: 2rem;
-      font-weight: 800;
-      margin-bottom: 1.5rem;
-      color: var(--text-primary);
-      letter-spacing: -0.02em;
-    }
-
-    [data-theme="dark"] .aspects-title {
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 25%, #4338ca 50%, #3730a3 75%, #312e81 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .aspects-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 1.5rem;
-    }
-    
-    .aspect-item {
-      background: var(--bg-primary);
-      padding: 1.5rem;
-      border-radius: 16px;
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-    .aspect-item::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 3px;
-      height: 100%;
-      background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
-    }
-
-    .aspect-item:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      border-color: var(--accent-primary);
-    }
-
-    .aspect-card {
-      background: var(--bg-primary);
-      padding: 1rem;
-      border-radius: 8px;
-      border-left: 4px solid var(--accent-primary);
-    }
-
-    .aspect-planets {
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 0.25rem;
-    }
-
-    .aspect-type {
-      color: var(--accent-primary);
-      font-size: 0.9rem;
-    }
-
-    .aspect-orb {
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-    }
-
-    .loading {
-      display: none;
-      text-align: center;
-      padding: 3rem;
-      color: var(--text-secondary);
-      background: var(--bg-secondary);
-      border-radius: 24px;
-      margin: 3rem 0;
-      border: 1px solid var(--border-color);
-      backdrop-filter: blur(20px);
-      box-shadow: var(--shadow);
-    }
-
-    .loading.active {
-      display: block;
-    }
-
-    .spinner {
-      border: 4px solid var(--border-color);
-      border-top: 4px solid var(--accent-primary);
-      border-radius: 50%;
-      width: 48px;
-      height: 48px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 1.5rem;
-      position: relative;
-    }
-
-    .spinner::before {
-      content: '';
-      position: absolute;
-      top: -4px;
-      left: -4px;
-      right: -4px;
-      bottom: -4px;
-      border: 2px solid transparent;
-      border-top: 2px solid var(--accent-secondary);
-      border-radius: 50%;
-      animation: spin 2s linear infinite reverse;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .element-counts {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    .element-card {
-      background: var(--bg-secondary);
-      padding: 1.5rem;
-      border-radius: 16px;
-      border: 2px solid var(--border-color);
-      box-shadow: var(--shadow);
-      text-align: center;
-      transition: all 0.3s ease;
-    }
-
-    .element-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    }
-
-    .element-card.fire {
-      border-color: #ef4444;
-      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-    }
-
-    .element-card.earth {
-      border-color: #10b981;
-      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-    }
-
-    .element-card.air {
-      border-color: #3b82f6;
-      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-    }
-
-    .element-card.water {
-      border-color: #8b5cf6;
-      background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
-    }
-
-    [data-theme="dark"] .element-card.fire {
-      background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%);
-    }
-
-    [data-theme="dark"] .element-card.earth {
-      background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
-    }
-
-    [data-theme="dark"] .element-card.air {
-      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-    }
-
-    [data-theme="dark"] .element-card.water {
-      background: linear-gradient(135deg, #581c87 0%, #7c3aed 100%);
-    }
-
-    .element-icon {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .element-name {
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-      color: var(--text-primary);
-    }
-
-    .element-count {
-      font-size: 2.5rem;
-      font-weight: bold;
-      color: var(--accent-primary);
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        padding: 1rem;
-      }
-      
-      .title {
-        font-size: 2rem;
-      }
-      
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .chart-container {
-        grid-template-columns: 1fr;
-      }
-      
-      .controls {
-        flex-direction: column;
-        gap: 1rem;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="container">
@@ -829,8 +16,9 @@
     </div>
 
     <div class="controls">
-      <button class="theme-toggle" id="theme-toggle">
-        <span class="theme-icon">🌙</span>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle light or dark theme" title="Toggle light or dark theme">
+        <span class="theme-icon" aria-hidden="true">🌙</span>
+        <span class="theme-label" id="theme-label">Light</span>
       </button>
     </div>
 
@@ -838,37 +26,37 @@
       <form id="chart-form">
         <div class="form-grid">
           <div class="form-group">
-            <label class="form-label">Birth year:</label>
+            <label class="form-label" for="year">Birth year:</label>
             <select class="form-input" id="year" required>
               <option value="">Select year</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Month:</label>
+            <label class="form-label" for="month">Month:</label>
             <select class="form-input" id="month" required>
               <option value="">Select month</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Day:</label>
+            <label class="form-label" for="day">Day:</label>
             <select class="form-input" id="day" required>
               <option value="">Select day</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Hour:</label>
+            <label class="form-label" for="hour">Hour:</label>
             <select class="form-input" id="hour" required>
               <option value="">Select hour</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Minute:</label>
+            <label class="form-label" for="minute">Minute:</label>
             <select class="form-input" id="minute" required>
               <option value="">Select minute</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Birth city:</label>
+            <label class="form-label" for="city">Birth city:</label>
             <input type="text" class="form-input" id="city" placeholder="Start typing a city" required list="cities">
             <datalist id="cities"></datalist>
           </div>
@@ -896,17 +84,17 @@
       <div class="chart-container">
         <div class="chart-wrapper">
           <h3 class="chart-title">Natal Chart</h3>
-          <canvas id="chart" width="500" height="500"></canvas>
+          <canvas id="chart" width="500" height="500" aria-label="Natal chart" role="img"></canvas>
         </div>
         
         <div class="chart-wrapper">
           <h3 class="chart-title">Moon Phase</h3>
-          <canvas id="moon-chart" width="400" height="400"></canvas>
+          <canvas id="moon-chart" width="400" height="400" aria-label="Moon phase" role="img"></canvas>
         </div>
         
         <div class="chart-wrapper">
           <h3 class="chart-title">Chinese Zodiac</h3>
-          <canvas id="chinese-zodiac-chart" width="400" height="400"></canvas>
+          <canvas id="chinese-zodiac-chart" width="400" height="400" aria-label="Chinese zodiac" role="img"></canvas>
         </div>
       </div>
       
@@ -958,6 +146,7 @@
       const form = document.getElementById('chart-form');
       const testDataBtn = document.getElementById('test-data');
       const themeToggle = document.getElementById('theme-toggle');
+      const themeLabel = document.getElementById('theme-label');
       const calculateBtn = document.getElementById('calculate-btn');
       
       console.log('Elements found:', {
@@ -970,6 +159,7 @@
         form: !!form,
         testDataBtn: !!testDataBtn,
         themeToggle: !!themeToggle,
+        themeLabel: !!themeLabel,
         calculateBtn: !!calculateBtn
       });
       
@@ -1060,10 +250,13 @@
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
         
-        // Update icon
+        // Update icon and label
         const themeIcon = themeToggle.querySelector('.theme-icon');
         if (themeIcon) {
           themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+        }
+        if (themeLabel) {
+          themeLabel.textContent = savedTheme === 'dark' ? 'Dark' : 'Light';
         }
         
         // Add click handler
@@ -1078,6 +271,9 @@
           document.documentElement.setAttribute('data-theme', newTheme);
           if (themeIcon) {
             themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+          }
+          if (themeLabel) {
+            themeLabel.textContent = newTheme === 'dark' ? 'Dark' : 'Light';
           }
           localStorage.setItem('theme', newTheme);
           
