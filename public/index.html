@@ -434,6 +434,10 @@
       border-radius: 16px;
       background: var(--bg-primary);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: block;
+      margin: 0 auto;
+      max-width: 100%;
+      height: auto;
     }
 
     .planets-table {
@@ -874,6 +878,25 @@
           themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
           localStorage.setItem('theme', newTheme);
           
+          // Redraw chart if it exists
+          const canvas = document.getElementById('chart');
+          const resultsSection = document.getElementById('results-section');
+          if (canvas && resultsSection.classList.contains('active')) {
+            // Get the last calculated data from the table
+            const planetsTbody = document.getElementById('planets-tbody');
+            if (planetsTbody.children.length > 0) {
+              const planets = Array.from(planetsTbody.children).map(row => {
+                const cells = row.children;
+                const name = cells[0].textContent.replace(/[☉☾☿♀♂♃♄♅♆♇☊☋⚷]/g, '').trim();
+                const sign = cells[1].textContent;
+                const longitude = parseFloat(cells[2].textContent);
+                const retrograde = cells[3].textContent.includes('R');
+                return { name, sign, longitude, retrograde };
+              });
+              drawNatalChart(canvas, planets);
+            }
+          }
+          
           console.log('Theme switched to:', newTheme);
         });
         console.log('Theme toggle listener added');
@@ -894,6 +917,84 @@
           console.log('Test data filled');
         });
         console.log('Test data button listener added');
+      }
+      
+      // Natal chart drawing function
+      function drawNatalChart(canvas, planets) {
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = Math.min(centerX, centerY) - 40;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Set background
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary');
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw zodiac wheel
+        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--border-color');
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.stroke();
+        
+        // Draw inner circle
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius * 0.8, 0, 2 * Math.PI);
+        ctx.stroke();
+        
+        // Draw zodiac signs
+        const signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 
+                      'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
+        const signSymbols = ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓'];
+        
+        ctx.font = '16px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-primary');
+        
+        signs.forEach((sign, index) => {
+          const angle = (index * 30 - 15) * Math.PI / 180; // Start from Aries (0°)
+          const x = centerX + Math.cos(angle) * (radius * 0.9);
+          const y = centerY + Math.sin(angle) * (radius * 0.9);
+          ctx.fillText(signSymbols[index], x, y);
+        });
+        
+        // Draw planets
+        const planetSymbols = {
+          'Sun': '☉', 'Moon': '☾', 'Mercury': '☿', 'Venus': '♀', 'Mars': '♂',
+          'Jupiter': '♃', 'Saturn': '♄', 'Uranus': '♅', 'Neptune': '♆', 'Pluto': '♇',
+          'Mean Node': '☊', 'True Node': '☋', 'Chiron': '⚷'
+        };
+        
+        ctx.font = '20px Arial';
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-primary');
+        
+        planets.forEach(planet => {
+          const angle = (planet.longitude - 90) * Math.PI / 180; // Start from Aries (0°)
+          const x = centerX + Math.cos(angle) * (radius * 0.6);
+          const y = centerY + Math.sin(angle) * (radius * 0.6);
+          
+          // Draw planet symbol
+          ctx.fillText(planetSymbols[planet.name] || planet.name.charAt(0), x, y);
+          
+          // Draw planet name
+          ctx.font = '12px Arial';
+          ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary');
+          ctx.fillText(planet.name, x, y + 20);
+          
+          // Reset font for next planet
+          ctx.font = '20px Arial';
+          ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-primary');
+        });
+        
+        // Draw center point
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-primary');
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 3, 0, 2 * Math.PI);
+        ctx.fill();
       }
       
       // Add form submission
@@ -996,6 +1097,12 @@
                 aspectsGrid.appendChild(aspectDiv);
               });
               aspectsSection.style.display = 'block';
+            }
+            
+            // Draw natal chart
+            const canvas = document.getElementById('chart');
+            if (canvas && data.planets) {
+              drawNatalChart(canvas, data.planets);
             }
             
             // Show results section
