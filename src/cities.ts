@@ -4,6 +4,7 @@ export interface City {
   lon: number;
 }
 
+// Minimal dataset of cities for demo purposes
 const cities: City[] = [
   { name: 'New York, USA', lat: 40.7128, lon: -74.006 },
   { name: 'London, UK', lat: 51.5074, lon: -0.1278 },
