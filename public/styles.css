@@ -10,13 +10,16 @@
   --border-color: #e2e8f0;
   --radius: 16px;
   --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --gradient: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+  --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
   --chart-gradient: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%);
   --chart-border: #6366f1;
   --chart-text: #3730a3;
   --chart-aspects: #8b5cf6;
-  --stars: radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.6), transparent),
-           radial-gradient(1px 1px at 40px 70px, rgba(255,255,255,0.4), transparent);
+  --stars: radial-gradient(2px 2px at 20px 30px, #6366f1, transparent),
+           radial-gradient(2px 2px at 40px 70px, rgba(99, 102, 241, 0.8), transparent),
+           radial-gradient(1px 1px at 90px 40px, #8b5cf6, transparent),
+           radial-gradient(1px 1px at 130px 80px, rgba(139, 92, 246, 0.6), transparent),
+           radial-gradient(2px 2px at 160px 30px, #6366f1, transparent);
   --tile-primary-gradient: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
   --tile-secondary-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   --tile-accent-gradient: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
@@ -36,7 +39,7 @@
   --border-color: #3f3f5a;
   --radius: 16px;
   --shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  --gradient: linear-gradient(135deg, #1e1e2f 0%, #2a2a3f 100%);
+  --gradient: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 25%, #2d1b69 50%, #4c1d95 75%, #7c3aed 100%);
   --button-gradient: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
   --table-gradient: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
   --chart-gradient: linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%);
@@ -82,7 +85,7 @@ body::before {
   height: 100%;
   background: var(--stars);
   background-size: 400px 400px;
-  opacity: 0.15;
+  opacity: 0.3;
   pointer-events: none;
   z-index: -1;
   animation: twinkle 60s linear infinite;
