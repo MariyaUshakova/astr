@@ -129,11 +129,15 @@
   </div>
 
   <script>
-    // Simple, working version - let's get the basics working first
-    console.log('=== NATAL CHART CALCULATOR STARTING ===');
-    
-    // Wait for DOM to be ready
-    document.addEventListener('DOMContentLoaded', function() {
+          // Simple, working version - let's get the basics working first
+      console.log('=== NATAL CHART CALCULATOR STARTING ===');
+      
+      // Global variables to store calculated data
+      let lastCalculatedData = null;
+      let lastBirthDate = null;
+      
+      // Wait for DOM to be ready
+      document.addEventListener('DOMContentLoaded', function() {
       console.log('DOM loaded, initializing...');
       
       // Get all the elements we need
@@ -279,43 +283,28 @@
           
                      console.log('Theme switched successfully');
            
-           // Redraw charts if they exist
-           const resultsSection = document.getElementById('results-section');
-           if (resultsSection && resultsSection.classList.contains('active')) {
-             // Get the last calculated data from the table
-             const planetsTbody = document.getElementById('planets-tbody');
-             if (planetsTbody && planetsTbody.children.length > 0) {
-               // Reconstruct planets data from table
-               const planets = Array.from(planetsTbody.children).map(row => {
-                 const cells = row.children;
-                 const name = cells[0].textContent.replace(/[☉☾☿♀♂♃♄♅♆♇☊☋⚷]/g, '').trim();
-                 const sign = cells[1].textContent;
-                 const longitude = parseFloat(cells[2].textContent);
-                 const retrograde = cells[3].textContent.includes('R');
-                 return { name, sign, longitude, retrograde };
-               });
-               
-               // Redraw natal chart
-               const chart = document.getElementById('chart');
-               if (chart) {
-                 drawNatalChart(chart, planets, []);
-               }
-               
-               // Redraw moon phase chart
-               const moonChart = document.getElementById('moon-chart');
-               if (moonChart) {
-                 const currentDate = new Date();
-                 const moonPhase = getMoonPhase(currentDate);
-                 drawMoonPhaseChart(moonChart, moonPhase, currentDate);
-               }
-               
-               // Redraw Chinese zodiac chart
-               const chineseChart = document.getElementById('chinese-zodiac-chart');
-               if (chineseChart) {
-                 const currentDate = new Date();
-                 const chineseZodiac = getChineseZodiac(currentDate);
-                 drawChineseZodiacChart(chineseChart, chineseZodiac, currentDate);
-               }
+           // Redraw charts if they exist and we have calculated data
+           if (lastCalculatedData && lastBirthDate) {
+             console.log('Redrawing charts with stored data...');
+             
+             // Redraw natal chart with full data including aspects
+             const chart = document.getElementById('chart');
+             if (chart) {
+               drawNatalChart(chart, lastCalculatedData.planets, lastCalculatedData.aspects || []);
+             }
+             
+             // Redraw moon phase chart with actual birth date
+             const moonChart = document.getElementById('moon-chart');
+             if (moonChart) {
+               const moonPhase = getMoonPhase(lastBirthDate);
+               drawMoonPhaseChart(moonChart, moonPhase, lastBirthDate);
+             }
+             
+             // Redraw Chinese zodiac chart with actual birth date
+             const chineseChart = document.getElementById('chinese-zodiac-chart');
+             if (chineseChart) {
+               const chineseZodiac = getChineseZodiac(lastBirthDate);
+               drawChineseZodiacChart(chineseChart, chineseZodiac, lastBirthDate);
              }
            }
         });
@@ -436,6 +425,10 @@
       // Display results
       function displayResults(data, birthDate) {
         console.log('Displaying results...');
+        
+        // Store the calculated data globally
+        lastCalculatedData = data;
+        lastBirthDate = birthDate;
         
         // Show results section
         const resultsSection = document.getElementById('results-section');
