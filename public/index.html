@@ -22,7 +22,12 @@
       </button>
     </div>
 
-    <div class="input-card">
+    <div class="tile tile--primary input-card">
+      <span class="tile-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15.232 5.232l3.536 3.536M4 20h4l10-10-4-4L4 16v4z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </span>
       <form id="chart-form">
         <div class="form-grid">
           <div class="form-group">
@@ -76,54 +81,91 @@
       Calculating your natal chart...
     </div>
 
-    <div class="results-section" id="results-section">
-      <div class="results-header">
-        <h2 class="results-title">Your Natal Chart</h2>
+    <div id="results-section">
+      <div class="tile tile--primary">
+        <span class="tile-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="5" fill="currentColor" />
+            <ellipse cx="12" cy="12" rx="9" ry="4" stroke="currentColor" fill="none" stroke-width="2" />
+          </svg>
+        </span>
+        <h3 class="tile-title">Natal Chart</h3>
+        <p class="tile-summary">Positions of the planets at your birth</p>
+        <canvas id="chart" width="500" height="500" aria-label="Natal chart" role="img"></canvas>
       </div>
-      
-      <div class="chart-container">
-        <div class="chart-wrapper">
-          <h3 class="chart-title">Natal Chart</h3>
-          <canvas id="chart" width="500" height="500" aria-label="Natal chart" role="img"></canvas>
-        </div>
-        
-        <div class="chart-wrapper">
-          <h3 class="chart-title">Moon Phase</h3>
-          <canvas id="moon-chart" width="400" height="400" aria-label="Moon phase" role="img"></canvas>
-        </div>
-        
-        <div class="chart-wrapper">
-          <h3 class="chart-title">Chinese Zodiac</h3>
-          <canvas id="chinese-zodiac-chart" width="400" height="400" aria-label="Chinese zodiac" role="img"></canvas>
+
+      <div class="tile tile--secondary">
+        <span class="tile-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 0011.58 9.79z" fill="currentColor" />
+          </svg>
+        </span>
+        <h3 class="tile-title">Moon Phase</h3>
+        <p class="tile-summary">Current lunar phase</p>
+        <canvas id="moon-chart" width="400" height="400" aria-label="Moon phase" role="img"></canvas>
+      </div>
+
+      <div class="tile tile--accent">
+        <span class="tile-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" />
+            <text x="12" y="16" text-anchor="middle" font-size="14" fill="currentColor">羊</text>
+          </svg>
+        </span>
+        <h3 class="tile-title">Chinese Zodiac</h3>
+        <p class="tile-summary">Year animal sign</p>
+        <canvas id="chinese-zodiac-chart" width="400" height="400" aria-label="Chinese zodiac" role="img"></canvas>
+      </div>
+
+      <div class="tile tile--primary">
+        <span class="tile-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" fill="none" stroke-width="2" />
+            <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="2" />
+            <line x1="3" y1="15" x2="21" y2="15" stroke="currentColor" stroke-width="2" />
+            <line x1="9" y1="3" x2="9" y2="21" stroke="currentColor" stroke-width="2" />
+            <line x1="15" y1="3" x2="15" y2="21" stroke="currentColor" stroke-width="2" />
+          </svg>
+        </span>
+        <h3 class="tile-title">Planetary Details</h3>
+        <p class="tile-summary">Table of planetary placements</p>
+        <table class="planets-table" id="planets-table">
+          <thead>
+            <tr>
+              <th>Planet</th>
+              <th>Sign</th>
+              <th>Element</th>
+              <th>Longitude</th>
+              <th>Retrograde</th>
+            </tr>
+          </thead>
+          <tbody id="planets-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="tile tile--secondary">
+        <span class="tile-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2l3 7h7l-5.5 4.5L18 22l-6-4-6 4 1.5-8.5L2 9h7z" fill="currentColor" />
+          </svg>
+        </span>
+        <h3 class="tile-title">Element Balance</h3>
+        <p class="tile-summary">Count of elements in your chart</p>
+        <div class="element-counts" id="element-counts">
+          <!-- Element counts will be populated here -->
         </div>
       </div>
-      
-              <div class="data-section">
-          <h3 class="data-title">Planetary Details</h3>
-          <table class="planets-table" id="planets-table">
-            <thead>
-              <tr>
-                <th>Planet</th>
-                <th>Sign</th>
-                <th>Element</th>
-                <th>Longitude</th>
-                <th>Retrograde</th>
-              </tr>
-            </thead>
-            <tbody id="planets-tbody"></tbody>
-          </table>
-        </div>
-        
-        <div class="data-section">
-          <h3 class="data-title">Element Balance</h3>
-          <div class="element-counts" id="element-counts">
-            <!-- Element counts will be populated here -->
-          </div>
-        </div>
     </div>
 
-    <div class="aspects-section" id="aspects-section" style="display: none;">
-      <h3 class="data-title">Major Aspects</h3>
+    <div class="tile tile--accent aspects-section" id="aspects-section" style="display: none;">
+      <span class="tile-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="7" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none" />
+          <circle cx="17" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none" />
+          <line x1="10" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="2" />
+        </svg>
+      </span>
+      <h3 class="tile-title">Major Aspects</h3>
       <div class="aspects-grid" id="aspects-grid"></div>
     </div>
   </div>
