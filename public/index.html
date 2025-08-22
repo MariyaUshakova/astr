@@ -413,13 +413,20 @@
 
     .chart-container {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 3rem;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2rem;
       margin-bottom: 3rem;
       align-items: start;
     }
 
-    @media (max-width: 1200px) {
+    @media (max-width: 1400px) {
+      .chart-container {
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+      }
+    }
+
+    @media (max-width: 900px) {
       .chart-container {
         grid-template-columns: 1fr;
         gap: 2rem;
@@ -493,10 +500,23 @@
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       display: block;
       margin: 0 auto;
-      width: 500px;
-      height: 500px;
+      width: 400px;
+      height: 400px;
       max-width: 100%;
-      max-height: 500px;
+      max-height: 400px;
+    }
+
+    #chinese-zodiac-chart {
+      border: 3px solid var(--chart-border);
+      border-radius: 20px;
+      background: var(--chart-gradient);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      display: block;
+      margin: 0 auto;
+      width: 400px;
+      height: 400px;
+      max-width: 100%;
+      max-height: 400px;
     }
 
     .planets-table {
@@ -805,7 +825,12 @@
         
         <div class="chart-wrapper">
           <h3 class="chart-title">Moon Phase</h3>
-          <canvas id="moon-chart" width="500" height="500"></canvas>
+          <canvas id="moon-chart" width="400" height="400"></canvas>
+        </div>
+        
+        <div class="chart-wrapper">
+          <h3 class="chart-title">Chinese Zodiac</h3>
+          <canvas id="chinese-zodiac-chart" width="400" height="400"></canvas>
         </div>
       </div>
       
@@ -949,8 +974,9 @@
           // Redraw charts if they exist
           const canvas = document.getElementById('chart');
           const moonCanvas = document.getElementById('moon-chart');
+          const chineseCanvas = document.getElementById('chinese-zodiac-chart');
           const resultsSection = document.getElementById('results-section');
-          if (canvas && moonCanvas && resultsSection.classList.contains('active')) {
+          if (canvas && moonCanvas && chineseCanvas && resultsSection.classList.contains('active')) {
             // Get the last calculated data from the table
             const planetsTbody = document.getElementById('planets-tbody');
             if (planetsTbody.children.length > 0) {
@@ -970,6 +996,11 @@
               const currentDate = new Date();
               const moonPhase = getMoonPhase(currentDate);
               drawMoonPhaseChart(moonCanvas, moonPhase, currentDate);
+              
+              // Redraw Chinese zodiac chart
+              const birthYear = new Date().getFullYear();
+              const chineseYear = chineseZodiac[birthYear] || chineseZodiac[2024];
+              drawChineseZodiacChart(chineseCanvas, chineseYear, birthYear);
             }
           }
           
@@ -1237,20 +1268,13 @@
         ctx.fill();
         ctx.shadowBlur = 0;
         
-        // Get Chinese zodiac for birth year
-        const chineseYear = chineseZodiac[birthYear] || chineseZodiac[2024];
-        
-        // Draw Chinese zodiac year in center
-        ctx.font = 'bold 16px Arial';
+        // Draw center point with glow
         ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
         ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
-        ctx.shadowBlur = 4;
-        ctx.fillText(chineseYear.symbol, centerX, centerY - 25);
-        ctx.font = 'bold 12px Arial';
-        ctx.fillText(chineseYear.animal, centerX, centerY + 10);
-        ctx.fillText(chineseYear.element, centerX, centerY + 25);
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 6, 0, 2 * Math.PI);
+        ctx.fill();
         ctx.shadowBlur = 0;
         
         // Draw chart title with glow
@@ -1337,6 +1361,89 @@
         ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
         ctx.shadowBlur = 6;
         ctx.fillText('MOON PHASE', centerX, 20);
+        ctx.shadowBlur = 0;
+      }
+
+      // Chinese Zodiac chart drawing function
+      function drawChineseZodiacChart(canvas, chineseYear, birthYear) {
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = Math.min(centerX, centerY) - 80;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Create beautiful gradient background
+        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius * 1.5);
+        const chartGradient = getComputedStyle(document.documentElement).getPropertyValue('--chart-gradient');
+        
+        if (chartGradient.includes('linear-gradient')) {
+          const colors = chartGradient.match(/#[a-fA-F0-9]{6}/g) || ['#e0e7ff', '#c7d2fe', '#a5b4fc'];
+          gradient.addColorStop(0, colors[0]);
+          gradient.addColorStop(0.5, colors[1] || colors[0]);
+          gradient.addColorStop(1, colors[2] || colors[0]);
+        } else {
+          gradient.addColorStop(0, '#e0e7ff');
+          gradient.addColorStop(0.5, '#c7d2fe');
+          gradient.addColorStop(1, '#a5b4fc');
+        }
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw outer circle with glow
+        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-border');
+        ctx.lineWidth = 4;
+        ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-border');
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        
+        // Draw Chinese zodiac animal symbol (large)
+        ctx.font = 'bold 100px Arial';
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.shadowBlur = 8;
+        ctx.fillText(chineseYear.symbol, centerX, centerY - 50);
+        ctx.shadowBlur = 0;
+        
+        // Draw animal name
+        ctx.font = 'bold 20px Arial';
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.shadowBlur = 4;
+        ctx.fillText(chineseYear.animal, centerX, centerY + 20);
+        ctx.shadowBlur = 0;
+        
+        // Draw element
+        ctx.font = 'bold 16px Arial';
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(chineseYear.element, centerX, centerY + 45);
+        
+        // Draw birth year
+        ctx.font = 'bold 18px Arial';
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(birthYear.toString(), centerX, centerY + 70);
+        
+        // Draw chart title
+        ctx.font = 'bold 20px Arial';
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+        ctx.shadowBlur = 6;
+        ctx.fillText('CHINESE ZODIAC', centerX, 20);
         ctx.shadowBlur = 0;
       }
       
@@ -1456,6 +1563,14 @@
               const birthDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
               const moonPhase = getMoonPhase(birthDate);
               drawMoonPhaseChart(moonCanvas, moonPhase, birthDate);
+            }
+
+            // Draw Chinese zodiac chart
+            const chineseCanvas = document.getElementById('chinese-zodiac-chart');
+            if (chineseCanvas) {
+              const birthYear = parseInt(year);
+              const chineseYear = chineseZodiac[birthYear] || chineseZodiac[2024];
+              drawChineseZodiacChart(chineseCanvas, chineseYear, birthYear);
             }
             
             // Show results section
