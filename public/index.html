@@ -1022,6 +1022,19 @@
           const cityInput = document.getElementById('city');
           if (cityInput) cityInput.value = 'KHARKIV';
           console.log('Test data filled');
+          
+          // Automatically trigger form submission after filling test data
+          setTimeout(() => {
+            const form = document.getElementById('chart-form');
+            if (form) {
+              console.log('Auto-submitting form with test data');
+              // Trigger the submit event manually
+              const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+              form.dispatchEvent(submitEvent);
+            } else {
+              console.error('Form not found!');
+            }
+          }, 100);
         });
         console.log('Test data button listener added');
       }
@@ -1597,8 +1610,9 @@
           }
           
           // Simple city validation
-          const validCities = ['KHARKIV', 'New York, USA', 'London, UK', 'Paris, France'];
+          const validCities = ['KHARKIV', 'NEW YORK, USA', 'LONDON, UK', 'PARIS, FRANCE'];
           if (!validCities.includes(cityName.toUpperCase())) {
+            console.log('City validation failed:', cityName.toUpperCase(), 'not in', validCities);
             alert('City not found. Please select a city from the list.');
             return;
           }
