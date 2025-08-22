@@ -1,11 +1,6 @@
 import cities from './cities';
-
-interface PlanetResult {
-  name: string;
-  sign: string;
-  longitude: number;
-  retrograde: boolean;
-}
+import { initSwissEph, PlanetResult } from './swisseph';
+import { calcFallback } from './fallback';
 
 const glyphs: Record<string, string> = {
   Sun: '☉',
@@ -117,20 +112,28 @@ function buildTable(planets: PlanetResult[]) {
 
 form.addEventListener('submit', async e => {
   e.preventDefault();
-  const data = {
-    date: (document.getElementById('date') as HTMLInputElement).value,
-    time: (document.getElementById('time') as HTMLInputElement).value,
-    city: cityInput.value
-  };
-  const res = await fetch('/api/chart', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-  const json = await res.json();
+  const dateStr = (document.getElementById('date') as HTMLInputElement).value;
+  const timeStr = (document.getElementById('time') as HTMLInputElement).value;
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const [hour, minute] = timeStr.split(':').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day, hour, minute));
+  const cityName = cityInput.value;
+  const loc = cities.find(c => c.name === cityName);
+  if (!loc) {
+    alert('Unknown city');
+    return;
+  }
+  let planets: PlanetResult[];
+  try {
+    const mod = await initSwissEph('.');
+    planets = mod.calcPlanets(date, loc.lon, loc.lat);
+  } catch (err) {
+    console.error('Swiss Ephemeris WASM failed, using fallback', err);
+    planets = calcFallback(date, loc.lon, loc.lat);
+  }
   gl.clearColor(0, 0, 0, 1);
   gl.clear(gl.COLOR_BUFFER_BIT);
   drawWheel();
-  drawPlanets(json.planets);
-  buildTable(json.planets);
+  drawPlanets(planets);
+  buildTable(planets);
 });
