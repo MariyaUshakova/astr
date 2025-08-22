@@ -364,6 +364,7 @@
       position: relative;
       overflow: hidden;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      text-align: center;
     }
 
     .results-section:hover {
@@ -388,7 +389,7 @@
 
     .results-header {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
       margin-bottom: 1.5rem;
       padding-bottom: 1rem;
@@ -411,11 +412,11 @@
     }
 
     .chart-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       gap: 3rem;
       margin-bottom: 3rem;
-      align-items: start;
     }
 
     .chart-wrapper {
@@ -424,14 +425,37 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      width: 100%;
+      margin-bottom: 4rem;
     }
 
-    .chart-title {
-      font-size: 1.4rem;
+    .data-section {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .data-title {
+      font-size: 1.8rem;
       font-weight: 700;
       margin-bottom: 1.5rem;
       color: var(--text-primary);
       letter-spacing: -0.01em;
+    }
+
+    [data-theme="dark"] .data-title {
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 25%, #4338ca 50%, #3730a3 75%, #312e81 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .chart-title {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 2rem;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
     }
 
     [data-theme="dark"] .chart-title {
@@ -449,16 +473,17 @@
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       display: block;
       margin: 0 auto;
-      max-width: 100%;
-      height: auto;
-      width: 600px;
-      height: 600px;
+      width: 700px;
+      height: 700px;
+      max-width: 90vw;
+      max-height: 70vh;
     }
 
     .planets-table {
       width: 100%;
+      max-width: 800px;
       border-collapse: collapse;
-      margin-top: 1rem;
+      margin: 0 auto;
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
@@ -516,6 +541,8 @@
       position: relative;
       overflow: hidden;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      max-width: 800px;
+      margin: 0 auto;
     }
 
     .aspects-section:hover {
@@ -752,11 +779,12 @@
       
       <div class="chart-container">
         <div class="chart-wrapper">
-          <h3 class="chart-title">Planetary Positions</h3>
-          <canvas id="chart" width="400" height="400"></canvas>
+          <h3 class="chart-title">Natal Chart</h3>
+          <canvas id="chart" width="700" height="700"></canvas>
         </div>
-        <div class="chart-wrapper">
-          <h3 class="chart-title">Planetary Details</h3>
+        
+        <div class="data-section">
+          <h3 class="data-title">Planetary Details</h3>
           <table class="planets-table" id="planets-table">
             <thead>
               <tr>
@@ -773,7 +801,7 @@
     </div>
 
     <div class="aspects-section" id="aspects-section" style="display: none;">
-      <h3 class="aspects-title">Major Aspects</h3>
+      <h3 class="data-title">Major Aspects</h3>
       <div class="aspects-grid" id="aspects-grid"></div>
     </div>
   </div>
