@@ -5,3 +5,7 @@ npm-debug.log
 
 # ephemeris files
 /ephemeris
+
+# generated Swiss Ephemeris artifacts
+/public/swisseph.js
+/public/swisseph.wasm
