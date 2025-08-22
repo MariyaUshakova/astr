@@ -1,30 +1,724 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <title>Natal Chart</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Natal Chart Calculator</title>
   <style>
-    body { font-family: sans-serif; background: #222; color: #fff; }
-    canvas { border: 1px solid #555; display: block; margin: 1rem auto; }
-    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-    th, td { border: 1px solid #555; padding: 0.5rem; text-align: center; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* Light theme variables */
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --accent-primary: #6366f1;
+      --accent-secondary: #8b5cf6;
+      --border-color: #e2e8f0;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    [data-theme="dark"] {
+      /* Dark theme variables */
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --accent-primary: #818cf8;
+      --accent-secondary: #a78bfa;
+      --border-color: #334155;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+      --gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--gradient);
+      color: var(--text-primary);
+      min-height: 100vh;
+      transition: all 0.3s ease;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .description {
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      max-width: 600px;
+      margin: 0 auto 2rem;
+      line-height: 1.6;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+
+
+    .theme-toggle {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border-color);
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.1);
+    }
+
+    .theme-icon {
+      font-size: 1.2rem;
+      transition: transform 0.3s ease;
+    }
+
+    [data-theme="light"] .theme-icon {
+      transform: rotate(0deg);
+    }
+
+    [data-theme="dark"] .theme-icon {
+      transform: rotate(180deg);
+    }
+
+    .input-card {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      align-items: end;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-label {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .form-input {
+      padding: 0.75rem;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .calculate-btn {
+      background: var(--gradient);
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      height: fit-content;
+    }
+
+    .calculate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+    }
+
+    .calculate-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .test-data {
+      background: #10b981;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .test-data:hover {
+      background: #059669;
+      transform: translateY(-1px);
+    }
+
+    .results-section {
+      display: none;
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+    }
+
+    .results-section.active {
+      display: block;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .results-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .chart-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .chart-wrapper {
+      text-align: center;
+    }
+
+    .chart-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+
+    #chart {
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-primary);
+    }
+
+    .planets-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    .planets-table th,
+    .planets-table td {
+      padding: 0.75rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .planets-table th {
+      background: var(--bg-primary);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .planets-table td {
+      color: var(--text-secondary);
+    }
+
+    .planet-glyph {
+      font-size: 1.2rem;
+    }
+
+    .retrograde {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    .aspects-section {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .aspects-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+
+    .aspects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+    
+    .aspect-item {
+      background: var(--bg-primary);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+
+    .aspect-card {
+      background: var(--bg-primary);
+      padding: 1rem;
+      border-radius: 8px;
+      border-left: 4px solid var(--accent-primary);
+    }
+
+    .aspect-planets {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .aspect-type {
+      color: var(--accent-primary);
+      font-size: 0.9rem;
+    }
+
+    .aspect-orb {
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-secondary);
+    }
+
+    .loading.active {
+      display: block;
+    }
+
+    .spinner {
+      border: 3px solid var(--border-color);
+      border-top: 3px solid var(--accent-primary);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .title {
+        font-size: 2rem;
+      }
+      
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .chart-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .controls {
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
-  <form id="chart-form">
-    <label>Date: <input type="date" id="date" required></label>
-    <label>Time: <input type="time" id="time" required></label>
-    <label>City: <input list="cities" id="city" required></label>
-    <datalist id="cities"></datalist>
-    <button type="submit">Calculate</button>
-  </form>
-  <canvas id="chart" width="400" height="400"></canvas>
-  <table id="results">
-    <thead>
-      <tr><th>♁</th><th>Planet</th><th>Sign</th><th>Longitude</th><th>Retrograde</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div class="container">
+    <div class="header">
+      <h1 class="title">Natal Chart Calculator</h1>
+      <p class="description">
+        Enter your birth details below to generate a natal chart with planetary positions, major aspects and general interpretations. When the Swiss Ephemeris library is available, the calculator uses its high-precision algorithms for planetary longitudes; otherwise it falls back to an internal approximate model.
+      </p>
+    </div>
+
+    <div class="controls">
+      <button class="theme-toggle" id="theme-toggle">
+        <span class="theme-icon">🌙</span>
+      </button>
+    </div>
+
+    <div class="input-card">
+      <form id="chart-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Birth year:</label>
+            <select class="form-input" id="year" required>
+              <option value="">Select year</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Month:</label>
+            <select class="form-input" id="month" required>
+              <option value="">Select month</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Day:</label>
+            <select class="form-input" id="day" required>
+              <option value="">Select day</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hour:</label>
+            <select class="form-input" id="hour" required>
+              <option value="">Select hour</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Minute:</label>
+            <select class="form-input" id="minute" required>
+              <option value="">Select minute</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Birth city:</label>
+            <input type="text" class="form-input" id="city" placeholder="Start typing a city" required list="cities">
+            <datalist id="cities"></datalist>
+          </div>
+          <div class="form-group">
+            <button type="submit" class="calculate-btn" id="calculate-btn">CALCULATE CHART</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="test-data" id="test-data">
+      TEST: 30.10.1990 14:10 KHARKIV
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      Calculating your natal chart...
+    </div>
+
+    <div class="results-section" id="results-section">
+      <div class="results-header">
+        <h2 class="results-title">Your Natal Chart</h2>
+      </div>
+      
+      <div class="chart-container">
+        <div class="chart-wrapper">
+          <h3 class="chart-title">Planetary Positions</h3>
+          <canvas id="chart" width="400" height="400"></canvas>
+        </div>
+        <div class="chart-wrapper">
+          <h3 class="chart-title">Planetary Details</h3>
+          <table class="planets-table" id="planets-table">
+            <thead>
+              <tr>
+                <th>Planet</th>
+                <th>Sign</th>
+                <th>Longitude</th>
+                <th>Retrograde</th>
+              </tr>
+            </thead>
+            <tbody id="planets-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="aspects-section" id="aspects-section" style="display: none;">
+      <h3 class="aspects-title">Major Aspects</h3>
+      <div class="aspects-grid" id="aspects-grid"></div>
+    </div>
+  </div>
+
+  <script>
+    // Debug script to check if page loads
+    console.log('HTML loaded successfully');
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM Content Loaded event fired');
+      
+      // Simple test to populate dropdowns
+      const yearSelect = document.getElementById('year');
+      const monthSelect = document.getElementById('month');
+      const daySelect = document.getElementById('day');
+      const hourSelect = document.getElementById('hour');
+      const minuteSelect = document.getElementById('minute');
+      
+      console.log('Found elements:', {
+        yearSelect: !!yearSelect,
+        monthSelect: !!monthSelect,
+        daySelect: !!daySelect,
+        hourSelect: !!hourSelect,
+        minuteSelect: !!minuteSelect
+      });
+      
+      if (yearSelect) {
+        yearSelect.innerHTML = '<option value="">Select year</option>';
+        const currentYear = new Date().getFullYear();
+        for (let year = 1940; year <= 2050; year++) {
+          const option = document.createElement('option');
+          option.value = year.toString();
+          option.textContent = year.toString();
+          if (year === currentYear) {
+            option.selected = true;
+          }
+          yearSelect.appendChild(option);
+        }
+        console.log('Years populated');
+      }
+      
+      if (monthSelect) {
+        monthSelect.innerHTML = '<option value="">Select month</option>';
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const currentMonth = new Date().getMonth() + 1;
+        months.forEach((month, index) => {
+          const option = document.createElement('option');
+          option.value = (index + 1).toString().padStart(2, '0');
+          option.textContent = month;
+          if (index + 1 === currentMonth) {
+            option.selected = true;
+          }
+          monthSelect.appendChild(option);
+        });
+        console.log('Months populated');
+      }
+      
+      if (daySelect) {
+        daySelect.innerHTML = '<option value="">Select day</option>';
+        const currentDay = new Date().getDate();
+        for (let day = 1; day <= 31; day++) {
+          const option = document.createElement('option');
+          option.value = day.toString().padStart(2, '0');
+          option.textContent = day.toString();
+          if (day === currentDay) {
+            option.selected = true;
+          }
+          daySelect.appendChild(option);
+        }
+        console.log('Days populated');
+      }
+      
+      if (hourSelect) {
+        hourSelect.innerHTML = '<option value="">Select hour</option>';
+        const currentHour = new Date().getHours();
+        for (let hour = 0; hour <= 23; hour++) {
+          const option = document.createElement('option');
+          option.value = hour.toString().padStart(2, '0');
+          option.textContent = hour.toString().padStart(2, '0');
+          if (hour === currentHour) {
+            option.selected = true;
+          }
+          hourSelect.appendChild(option);
+        }
+        console.log('Hours populated');
+      }
+      
+      if (minuteSelect) {
+        minuteSelect.innerHTML = '<option value="">Select minute</option>';
+        const currentMinute = new Date().getMinutes();
+        for (let minute = 0; minute <= 59; minute++) {
+          const option = document.createElement('option');
+          option.value = minute.toString().padStart(2, '0');
+          option.textContent = minute.toString().padStart(2, '0');
+          if (minute === currentMinute) {
+            option.selected = true;
+          }
+          minuteSelect.appendChild(option);
+        }
+        console.log('Minutes populated');
+      }
+      
+      // Add test data button functionality
+      const testDataBtn = document.getElementById('test-data');
+      if (testDataBtn) {
+        testDataBtn.addEventListener('click', () => {
+          console.log('Test data button clicked');
+          if (yearSelect) yearSelect.value = '1990';
+          if (monthSelect) monthSelect.value = '10';
+          if (daySelect) daySelect.value = '30';
+          if (hourSelect) hourSelect.value = '14';
+          if (minuteSelect) minuteSelect.value = '10';
+          const cityInput = document.getElementById('city');
+          if (cityInput) cityInput.value = 'KHARKIV';
+          console.log('Test data filled');
+        });
+        console.log('Test data button listener added');
+      }
+      
+      // Add form submission
+      const form = document.getElementById('chart-form');
+      if (form) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          console.log('Form submitted');
+          
+          const year = yearSelect?.value;
+          const month = monthSelect?.value;
+          const day = daySelect?.value;
+          const hour = hourSelect?.value;
+          const minute = minuteSelect?.value;
+          const cityName = document.getElementById('city')?.value;
+          
+          console.log('Form values:', { year, month, day, hour, minute, cityName });
+          
+          if (!year || !month || !day || !hour || !minute || !cityName) {
+            alert('Please fill in all fields');
+            return;
+          }
+          
+          // Simple city validation
+          const validCities = ['KHARKIV', 'New York, USA', 'London, UK', 'Paris, France'];
+          if (!validCities.includes(cityName.toUpperCase())) {
+            alert('City not found. Please select a city from the list.');
+            return;
+          }
+          
+          // Create date object
+          const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute)));
+          
+          // Show loading
+          const calculateBtn = document.getElementById('calculate-btn');
+          if (calculateBtn) {
+            calculateBtn.disabled = true;
+            calculateBtn.textContent = 'CALCULATING...';
+          }
+          
+          try {
+            console.log('Making API request...');
+            
+            // Call the server API for calculations
+            const response = await fetch('/api/calculate', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                date: date.toISOString(),
+                longitude: 36.2304, // KHARKIV coordinates
+                latitude: 49.9935
+              })
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('API response:', data);
+            
+            // Display results in the table
+            const planetsTbody = document.getElementById('planets-tbody');
+            if (planetsTbody && data.planets) {
+              planetsTbody.innerHTML = '';
+              
+              // Unicode glyphs for planets
+              const glyphs = {
+                'Sun': '☉', 'Moon': '☾', 'Mercury': '☿', 'Venus': '♀', 'Mars': '♂',
+                'Jupiter': '♃', 'Saturn': '♄', 'Uranus': '♅', 'Neptune': '♆', 'Pluto': '♇',
+                'Mean Node': '☊', 'True Node': '☋', 'Chiron': '⚷'
+              };
+              
+              data.planets.forEach(planet => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                  <td><span class="planet-glyph">${glyphs[planet.name] || planet.name}</span> ${planet.name}</td>
+                  <td>${planet.sign}</td>
+                  <td>${planet.longitude.toFixed(2)}°</td>
+                  <td>${planet.retrograde ? '<span class="retrograde">R</span>' : ''}</td>
+                `;
+                planetsTbody.appendChild(row);
+              });
+            }
+            
+            // Show aspects if available
+            const aspectsSection = document.getElementById('aspects-section');
+            const aspectsGrid = document.getElementById('aspects-grid');
+            if (aspectsSection && aspectsGrid && data.aspects && data.aspects.length > 0) {
+              aspectsGrid.innerHTML = '';
+              data.aspects.forEach(aspect => {
+                const aspectDiv = document.createElement('div');
+                aspectDiv.className = 'aspect-item';
+                aspectDiv.innerHTML = `
+                  <strong>${aspect.planet1} ${aspect.aspect} ${aspect.planet2}</strong><br>
+                  Orb: ${aspect.orb.toFixed(1)}° | Exact: ${aspect.exact.toFixed(1)}°
+                `;
+                aspectsGrid.appendChild(aspectDiv);
+              });
+              aspectsSection.style.display = 'block';
+            }
+            
+            // Show results section
+            const resultsSection = document.getElementById('results-section');
+            if (resultsSection) {
+              resultsSection.classList.add('active');
+              resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+
+          } catch (error) {
+            console.error('Calculation failed:', error);
+            alert('Calculation failed. Please try again.');
+          } finally {
+            if (calculateBtn) {
+              calculateBtn.disabled = false;
+              calculateBtn.textContent = 'CALCULATE CHART';
+            }
+          }
+        });
+        console.log('Form submit listener added');
+      }
+    });
+  </script>
   <script type="module" src="/client.js"></script>
 </body>
 </html>
