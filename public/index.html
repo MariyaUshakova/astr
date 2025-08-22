@@ -859,6 +859,11 @@
   <script>
     // Debug script to check if page loads
     console.log('HTML loaded successfully');
+    
+    // Immediate debugging
+    console.log('Script starting...');
+    console.log('Document ready state:', document.readyState);
+    
     document.addEventListener('DOMContentLoaded', () => {
       console.log('DOM Content Loaded event fired');
       
@@ -957,6 +962,9 @@
       const themeToggle = document.getElementById('theme-toggle');
       const themeIcon = themeToggle?.querySelector('.theme-icon');
       
+      console.log('Theme toggle found:', !!themeToggle);
+      console.log('Theme icon found:', !!themeIcon);
+      
       if (themeToggle && themeIcon) {
         // Check for saved theme preference or default to light
         const savedTheme = localStorage.getItem('theme') || 'light';
@@ -964,9 +972,11 @@
         themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
         
         themeToggle.addEventListener('click', () => {
+          console.log('Theme toggle clicked!');
           const currentTheme = document.documentElement.getAttribute('data-theme');
           const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
           
+          console.log('Switching theme from', currentTheme, 'to', newTheme);
           document.documentElement.setAttribute('data-theme', newTheme);
           themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
           localStorage.setItem('theme', newTheme);
@@ -1011,9 +1021,11 @@
       
       // Add test data button functionality
       const testDataBtn = document.getElementById('test-data');
+      console.log('Test data button found:', !!testDataBtn);
       if (testDataBtn) {
         testDataBtn.addEventListener('click', () => {
-          console.log('Test data button clicked');
+          console.log('Test data button clicked!');
+          alert('Test data button clicked!'); // Temporary alert to test
           if (yearSelect) yearSelect.value = '1990';
           if (monthSelect) monthSelect.value = '10';
           if (daySelect) daySelect.value = '30';
@@ -1590,6 +1602,7 @@
       
       // Add form submission
       const form = document.getElementById('chart-form');
+      console.log('Form found:', !!form);
       if (form) {
         form.addEventListener('submit', async (e) => {
           e.preventDefault();
