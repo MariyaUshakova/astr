@@ -374,15 +374,7 @@
           if (minuteSelect) minuteSelect.value = '10';
           if (cityInput) cityInput.value = 'KHARKIV';
           
-          console.log('Test data filled');
-          
-          // Auto-submit form
-          setTimeout(function() {
-            if (form) {
-              console.log('Auto-submitting form...');
-              form.dispatchEvent(new Event('submit', { bubbles: true }));
-            }
-          }, 100);
+          console.log('Test data filled - ready for calculation');
         });
         
         console.log('Test data button setup complete');
