@@ -24,7 +24,8 @@ const PLANETS = [
   { id: swisseph.SE_PLUTO, name: 'Pluto' },
   { id: swisseph.SE_MEAN_NODE, name: 'Mean Node' },
   { id: swisseph.SE_TRUE_NODE, name: 'True Node' },
-  { id: swisseph.SE_CHIRON, name: 'Chiron' }
+  { id: swisseph.SE_CHIRON, name: 'Chiron' },
+  { id: swisseph.SE_MEAN_APOG, name: 'Lilith' }
 ];
 
 // Names of the zodiac signs in order
@@ -157,13 +158,30 @@ export function initSwissEph(ephePath = './ephe') {
       if (result && typeof result === 'object' && 'house' in result) {
         const houseArray = (result as any).house;
         if (Array.isArray(houseArray) && houseArray.length > 0) {
+          const ascendant = (result as any).ascendant;
+          const mc = (result as any).mc;
+          const houseCusps = houseArray.slice(1, 13); // Houses 1-12
+
+          const HOUSE_NAMES = ['Asc', 'II', 'III', 'IC', 'V', 'VI', 'Desc', 'VIII', 'IX', 'MC', 'XI', 'XII'];
+          const houses = HOUSE_NAMES.map((name, i) => ({
+            name,
+            longitude: houseCusps[i],
+            sign: zodiacSign(houseCusps[i])
+          }));
+
+          const ic = (mc + 180) % 360;
+          const desc = (ascendant + 180) % 360;
+
           return {
-            ascendant: (result as any).ascendant,
-            mc: (result as any).mc,
+            ascendant,
+            mc,
+            ic,
+            desc,
             armc: (result as any).armc,
             vertex: (result as any).vertex,
             equatorialAscendant: (result as any).equatorialAscendant,
-            houseCusps: houseArray.slice(1, 13) // Houses 1-12
+            houseCusps,
+            houses
           };
         }
       }
@@ -238,7 +256,8 @@ export function initSwissEph(ephePath = './ephe') {
       SE_PLUTO: swisseph.SE_PLUTO,
       SE_CHIRON: swisseph.SE_CHIRON,
       SE_MEAN_NODE: swisseph.SE_MEAN_NODE,
-      SE_TRUE_NODE: swisseph.SE_TRUE_NODE
+      SE_TRUE_NODE: swisseph.SE_TRUE_NODE,
+      SE_MEAN_APOG: swisseph.SE_MEAN_APOG
     }
   };
 }
