@@ -16,8 +16,17 @@ const glyphs = {
     Pluto: '♇',
     'Mean Node': '☊',
     'True Node': '☋',
-    Chiron: '⚷'
+    Chiron: '⚷',
+    Lilith: '⚸'
 };
+function formatDMS(longitude) {
+    const pos = longitude % 30;
+    const deg = Math.floor(pos);
+    const minFloat = (pos - deg) * 60;
+    const min = Math.floor(minFloat);
+    const sec = Math.round((minFloat - min) * 60);
+    return `${deg}\u00B0${min.toString().padStart(2, '0')}'${sec.toString().padStart(2, '0')}"`;
+}
 // Initialize the application when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded, initializing application...');
@@ -41,6 +50,7 @@ function init() {
     const resultsSection = document.getElementById('results-section');
     const aspectsSection = document.getElementById('aspects-section');
     const planetsTbody = document.getElementById('planets-tbody');
+    const housesTbody = document.getElementById('houses-tbody');
     const aspectsGrid = document.getElementById('aspects-grid');
     const themeToggle = document.getElementById('theme-toggle');
     const themeIcon = themeToggle === null || themeToggle === void 0 ? void 0 : themeToggle.querySelector('.theme-icon');
@@ -280,10 +290,25 @@ function init() {
             tr.innerHTML = `
         <td><span class="planet-glyph">${glyphs[p.name] || ''}</span> ${p.name}</td>
         <td>${p.sign}</td>
+        <td>${p.element}</td>
         <td>${p.longitude.toFixed(2)}°</td>
         <td class="${p.retrograde ? 'retrograde' : ''}">${p.retrograde ? 'Yes' : 'No'}</td>
       `;
             planetsTbody.appendChild(tr);
+        });
+    }
+    function buildHousesTable(houses) {
+        if (!housesTbody)
+            return;
+        housesTbody.innerHTML = '';
+        houses.forEach(h => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+        <td>${h.name}</td>
+        <td>${h.sign}</td>
+        <td>${formatDMS(h.longitude)}</td>
+      `;
+            housesTbody.appendChild(tr);
         });
     }
     // Build the aspects section
@@ -367,6 +392,7 @@ function init() {
             console.log('API response:', data);
             const planets = data.planets;
             const aspects = data.aspects || [];
+            const houses = data.houses;
             // Update the display
             const gl = window.gl;
             gl.clearColor(0, 0, 0, 1);
@@ -374,6 +400,9 @@ function init() {
             drawWheel();
             drawPlanets(planets);
             buildPlanetsTable(planets);
+            if (houses) {
+                buildHousesTable(houses.houses);
+            }
             buildAspectsSection(aspects);
             // Show results
             if (resultsSection) {

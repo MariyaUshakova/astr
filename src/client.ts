@@ -18,13 +18,15 @@ const glyphs: Record<string, string> = {
   Pluto: '♇',
   'Mean Node': '☊',
   'True Node': '☋',
-  Chiron: '⚷'
+  Chiron: '⚷',
+  Lilith: '⚸'
 };
 
 // Planet result interface
 interface PlanetResult {
   name: string;
   sign: string;
+  element: string;
   longitude: number;
   retrograde: boolean;
 }
@@ -36,6 +38,29 @@ interface Aspect {
   aspect: string;
   orb: number;
   exact: number;
+}
+
+interface House {
+  name: string;
+  sign: string;
+  longitude: number;
+}
+
+interface HousesResult {
+  ascendant: number;
+  mc: number;
+  ic: number;
+  desc: number;
+  houses: House[];
+}
+
+function formatDMS(longitude: number): string {
+  const pos = longitude % 30;
+  const deg = Math.floor(pos);
+  const minFloat = (pos - deg) * 60;
+  const min = Math.floor(minFloat);
+  const sec = Math.round((minFloat - min) * 60);
+  return `${deg}\u00B0${min.toString().padStart(2, '0')}'${sec.toString().padStart(2, '0')}"`;
 }
 
 // Initialize the application when the DOM is loaded
@@ -63,6 +88,7 @@ function init() {
   const resultsSection = document.getElementById('results-section') as HTMLDivElement;
   const aspectsSection = document.getElementById('aspects-section') as HTMLDivElement;
   const planetsTbody = document.getElementById('planets-tbody') as HTMLTableSectionElement;
+  const housesTbody = document.getElementById('houses-tbody') as HTMLTableSectionElement;
   const aspectsGrid = document.getElementById('aspects-grid') as HTMLDivElement;
   const themeToggle = document.getElementById('theme-toggle') as HTMLButtonElement;
   const themeIcon = themeToggle?.querySelector('.theme-icon') as HTMLSpanElement;
@@ -331,10 +357,25 @@ function init() {
       tr.innerHTML = `
         <td><span class="planet-glyph">${glyphs[p.name] || ''}</span> ${p.name}</td>
         <td>${p.sign}</td>
+        <td>${p.element}</td>
         <td>${p.longitude.toFixed(2)}°</td>
         <td class="${p.retrograde ? 'retrograde' : ''}">${p.retrograde ? 'Yes' : 'No'}</td>
       `;
       planetsTbody.appendChild(tr);
+    });
+  }
+
+  function buildHousesTable(houses: House[]) {
+    if (!housesTbody) return;
+    housesTbody.innerHTML = '';
+    houses.forEach(h => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${h.name}</td>
+        <td>${h.sign}</td>
+        <td>${formatDMS(h.longitude)}</td>
+      `;
+      housesTbody.appendChild(tr);
     });
   }
 
@@ -433,6 +474,7 @@ function init() {
       
       const planets: PlanetResult[] = data.planets;
       const aspects: Aspect[] = data.aspects || [];
+      const houses: HousesResult = data.houses;
 
       // Update the display
       const gl = (window as any).gl;
@@ -441,6 +483,9 @@ function init() {
       drawWheel();
       drawPlanets(planets);
       buildPlanetsTable(planets);
+      if (houses) {
+        buildHousesTable(houses.houses);
+      }
       buildAspectsSection(aspects);
 
       // Show results
