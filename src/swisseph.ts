@@ -58,9 +58,15 @@ export interface ElementCount {
   Water: number;
 }
 
+// Normalize a degree value to the range 0 <= deg < 360
+function normalizeDegrees(deg: number): number {
+  return (deg % 360 + 360) % 360;
+}
+
 // Convert an ecliptic longitude in degrees to a zodiac sign
 function zodiacSign(longitude: number): string {
-  return SIGNS[Math.floor(longitude / 30) % 12];
+  const normalized = normalizeDegrees(longitude);
+  return SIGNS[Math.floor(normalized / 30) % 12];
 }
 
 // Get element for a zodiac sign
@@ -117,7 +123,7 @@ export function initSwissEph(ephePath = './ephe') {
 
         // Type guard to check if result has the expected properties
         if (result && typeof result === 'object' && 'longitude' in result) {
-          const longitude = (result as any).longitude;
+          const longitude = normalizeDegrees((result as any).longitude);
           const speed = (result as any).longitudeSpeed;
 
           const sign = zodiacSign(longitude);
@@ -150,15 +156,20 @@ export function initSwissEph(ephePath = './ephe') {
     );
 
     try {
-      const result = swisseph.swe_houses(jd, lat, lon, system);
-      
+      const flags = swisseph.SEFLG_SWIEPH;
+      // Set observer location for consistency
+      swisseph.swe_set_topo(lon, lat, 0);
+      const result = swisseph.swe_houses_ex(jd, flags, lat, lon, system);
+
       // Type guard to check if result has the expected properties
       if (result && typeof result === 'object' && 'house' in result) {
         const houseArray = (result as any).house;
         if (Array.isArray(houseArray) && houseArray.length > 0) {
-          const ascendant = (result as any).ascendant;
-          const mc = (result as any).mc;
-          const houseCusps = houseArray.slice(1, 13); // Houses 1-12
+          const ascendant = normalizeDegrees((result as any).ascendant);
+          const mc = normalizeDegrees((result as any).mc);
+          const houseCusps = houseArray
+            .slice(1, 13)
+            .map((deg: number) => normalizeDegrees(deg)); // Houses 1-12
           const ic = houseCusps[3];
           const desc = houseCusps[6];
 
