@@ -563,11 +563,12 @@
            
            // Helper function to format longitude to degrees, minutes, seconds
            function formatLongitude(longitude) {
-             const sign = Math.floor(longitude / 30);
-             const deg = Math.floor(longitude % 30);
-             const min = Math.floor((longitude % 1) * 60);
-             const sec = Math.round(((longitude % 1) * 60 - min) * 60);
-             const signNames = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 
+             const norm = (longitude % 360 + 360) % 360;
+             const sign = Math.floor(norm / 30);
+             const deg = Math.floor(norm % 30);
+             const min = Math.floor((norm % 1) * 60);
+             const sec = Math.round(((norm % 1) * 60 - min) * 60);
+             const signNames = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
                                'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
              return `${deg}°${min}′${sec}″ ${signNames[sign]}`;
            }
@@ -582,8 +583,9 @@
              housesTbody.appendChild(row);
            });
            
-           // Also display Ascendant and MC separately if available
-           if (data.houses.ascendant !== undefined || data.houses.mc !== undefined) {
+           // Also display Ascendant, IC, Descendant, and MC separately if available
+           if (data.houses.ascendant !== undefined || data.houses.mc !== undefined ||
+               data.houses.ic !== undefined || data.houses.desc !== undefined) {
              const additionalInfo = document.createElement('div');
              additionalInfo.className = 'houses-additional-info';
              additionalInfo.style.marginTop = '1rem';
@@ -595,6 +597,12 @@
              let infoText = '';
              if (data.houses.ascendant !== undefined) {
                infoText += `<strong>Ascendant:</strong> ${formatLongitude(data.houses.ascendant)}<br>`;
+             }
+             if (data.houses.ic !== undefined) {
+               infoText += `<strong>Imum Coeli (IC):</strong> ${formatLongitude(data.houses.ic)}<br>`;
+             }
+             if (data.houses.desc !== undefined) {
+               infoText += `<strong>Descendant:</strong> ${formatLongitude(data.houses.desc)}<br>`;
              }
              if (data.houses.mc !== undefined) {
                infoText += `<strong>Midheaven (MC):</strong> ${formatLongitude(data.houses.mc)}`;
