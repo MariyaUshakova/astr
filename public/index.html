@@ -349,10 +349,10 @@
            if (lastCalculatedData && lastBirthDate) {
              console.log('Redrawing charts with stored data...');
              
-             // Redraw natal chart with full data including aspects
+             // Redraw natal chart with full data including aspects and houses
              const chart = document.getElementById('chart');
              if (chart) {
-               drawNatalChart(chart, lastCalculatedData.planets, lastCalculatedData.aspects || []);
+               drawNatalChart(chart, lastCalculatedData.planets, lastCalculatedData.aspects || [], lastCalculatedData.houses);
              }
              
              // Redraw moon phase chart with actual birth date
@@ -555,6 +555,55 @@
              elementCountsDiv.appendChild(elementCard);
            });
          }
+         
+         // Display houses
+         const housesTbody = document.getElementById('houses-tbody');
+         if (housesTbody && data.houses && data.houses.houses) {
+           housesTbody.innerHTML = '';
+           
+           // Helper function to format longitude to degrees, minutes, seconds
+           function formatLongitude(longitude) {
+             const sign = Math.floor(longitude / 30);
+             const deg = Math.floor(longitude % 30);
+             const min = Math.floor((longitude % 1) * 60);
+             const sec = Math.round(((longitude % 1) * 60 - min) * 60);
+             const signNames = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 
+                               'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
+             return `${deg}°${min}′${sec}″ ${signNames[sign]}`;
+           }
+           
+           data.houses.houses.forEach(house => {
+             const row = document.createElement('tr');
+             row.innerHTML = `
+               <td><strong>${house.name}</strong></td>
+               <td>${house.sign || 'N/A'}</td>
+               <td>${house.longitude ? formatLongitude(house.longitude) : 'N/A'}</td>
+             `;
+             housesTbody.appendChild(row);
+           });
+           
+           // Also display Ascendant and MC separately if available
+           if (data.houses.ascendant !== undefined || data.houses.mc !== undefined) {
+             const additionalInfo = document.createElement('div');
+             additionalInfo.className = 'houses-additional-info';
+             additionalInfo.style.marginTop = '1rem';
+             additionalInfo.style.padding = '0.5rem';
+             additionalInfo.style.backgroundColor = 'var(--tile-bg)';
+             additionalInfo.style.borderRadius = '0.5rem';
+             additionalInfo.style.fontSize = '0.9rem';
+             
+             let infoText = '';
+             if (data.houses.ascendant !== undefined) {
+               infoText += `<strong>Ascendant:</strong> ${formatLongitude(data.houses.ascendant)}<br>`;
+             }
+             if (data.houses.mc !== undefined) {
+               infoText += `<strong>Midheaven (MC):</strong> ${formatLongitude(data.houses.mc)}`;
+             }
+             
+             additionalInfo.innerHTML = infoText;
+             housesTbody.parentElement.parentElement.appendChild(additionalInfo);
+           }
+         }
         
         // Draw charts (simplified for now)
         drawSimpleCharts(data, birthDate);
@@ -746,7 +795,7 @@
          // Draw natal chart
          const chart = document.getElementById('chart');
          if (chart && data.planets) {
-           drawNatalChart(chart, data.planets, data.aspects || []);
+           drawNatalChart(chart, data.planets, data.aspects || [], data.houses);
          }
          
          // Draw moon phase chart
@@ -767,7 +816,7 @@
        }
 
        // Natal chart drawing function
-       function drawNatalChart(canvas, planets, aspects = []) {
+       function drawNatalChart(canvas, planets, aspects = [], houses = null) {
          const ctx = canvas.getContext('2d');
          const centerX = canvas.width / 2;
          const centerY = canvas.height / 2;
@@ -804,32 +853,63 @@
          ctx.stroke();
          ctx.shadowBlur = 0;
          
-         // Draw house divisions (12 houses) with aesthetic lines
+         // Draw house divisions with actual house cusps if available
          ctx.lineWidth = 2;
          ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
          ctx.globalAlpha = 0.6;
-         for (let i = 0; i < 12; i++) {
-           const angle = (i * 30 - 90) * Math.PI / 180; // Start from Ascendant (left)
-           const x1 = centerX + Math.cos(angle) * radius;
-           const y1 = centerY + Math.sin(angle) * radius;
-           const x2 = centerX + Math.cos(angle) * (radius * 0.65);
-           const y2 = centerY + Math.sin(angle) * (radius * 0.65);
-           ctx.beginPath();
-           ctx.moveTo(x1, y1);
-           ctx.lineTo(x2, y2);
-           ctx.stroke();
-           
-           // Draw house numbers with glow
-           const houseAngle = (i * 30 - 75) * Math.PI / 180;
-           const houseX = centerX + Math.cos(houseAngle) * (radius * 0.8);
-           const houseY = centerY + Math.sin(houseAngle) * (radius * 0.8);
-           ctx.font = 'bold 16px Arial';
-           ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
-           ctx.textAlign = 'center';
-           ctx.textBaseline = 'middle';
-           ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
-           ctx.shadowBlur = 3;
-           ctx.fillText((i + 1).toString(), houseX, houseY);
+         
+         if (houses && houses.houses && houses.houses.length > 0) {
+           // Use actual house cusps
+           houses.houses.forEach((house, i) => {
+             if (house.longitude !== undefined) {
+               const angle = (house.longitude - 90) * Math.PI / 180; // Convert to radians, start from left
+               const x1 = centerX + Math.cos(angle) * radius;
+               const y1 = centerY + Math.sin(angle) * radius;
+               const x2 = centerX + Math.cos(angle) * (radius * 0.65);
+               const y2 = centerY + Math.sin(angle) * (radius * 0.65);
+               ctx.beginPath();
+               ctx.moveTo(x1, y1);
+               ctx.lineTo(x2, y2);
+               ctx.stroke();
+               
+               // Draw house numbers with glow
+               const houseAngle = (house.longitude - 75) * Math.PI / 180;
+               const houseX = centerX + Math.cos(houseAngle) * (radius * 0.8);
+               const houseY = centerY + Math.sin(houseAngle) * (radius * 0.8);
+               ctx.font = 'bold 16px Arial';
+               ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+               ctx.textAlign = 'center';
+               ctx.textBaseline = 'middle';
+               ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+               ctx.shadowBlur = 3;
+               ctx.fillText(house.name, houseX, houseY);
+             }
+           });
+         } else {
+           // Fallback to generic 30-degree divisions
+           for (let i = 0; i < 12; i++) {
+             const angle = (i * 30 - 90) * Math.PI / 180; // Start from Ascendant (left)
+             const x1 = centerX + Math.cos(angle) * radius;
+             const y1 = centerY + Math.sin(angle) * radius;
+             const x2 = centerX + Math.cos(angle) * (radius * 0.65);
+             const y2 = centerY + Math.sin(angle) * (radius * 0.65);
+             ctx.beginPath();
+             ctx.moveTo(x1, y1);
+             ctx.lineTo(x2, y2);
+             ctx.stroke();
+             
+             // Draw house numbers with glow
+             const houseAngle = (i * 30 - 75) * Math.PI / 180;
+             const houseX = centerX + Math.cos(houseAngle) * (radius * 0.8);
+             const houseY = centerY + Math.sin(houseAngle) * (radius * 0.8);
+             ctx.font = 'bold 16px Arial';
+             ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+             ctx.textAlign = 'center';
+             ctx.textBaseline = 'middle';
+             ctx.shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text');
+             ctx.shadowBlur = 3;
+             ctx.fillText((i + 1).toString(), houseX, houseY);
+           }
          }
          ctx.globalAlpha = 1;
          ctx.shadowBlur = 0;
