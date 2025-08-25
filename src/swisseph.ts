@@ -110,12 +110,10 @@ export function initSwissEph(ephePath = './ephe') {
     
     PLANETS.forEach(p => {
       try {
-        // Calculate planet position
-        const result = swisseph.swe_calc_ut(
-          jd,
-          p.id,
-          swisseph.SEFLG_SPEED | swisseph.SEFLG_TOPOCTR
-        );
+        // Calculate planet position using Swiss ephemeris files
+        const flags =
+          swisseph.SEFLG_SWIEPH | swisseph.SEFLG_SPEED | swisseph.SEFLG_TOPOCTR;
+        const result = swisseph.swe_calc_ut(jd, p.id, flags);
 
         // Type guard to check if result has the expected properties
         if (result && typeof result === 'object' && 'longitude' in result) {
@@ -161,16 +159,28 @@ export function initSwissEph(ephePath = './ephe') {
           const ascendant = (result as any).ascendant;
           const mc = (result as any).mc;
           const houseCusps = houseArray.slice(1, 13); // Houses 1-12
+          const ic = houseCusps[3];
+          const desc = houseCusps[6];
 
-          const HOUSE_NAMES = ['Asc', 'II', 'III', 'IC', 'V', 'VI', 'Desc', 'VIII', 'IX', 'MC', 'XI', 'XII'];
+          const HOUSE_NAMES = [
+            'Asc',
+            'II',
+            'III',
+            'IC',
+            'V',
+            'VI',
+            'Desc',
+            'VIII',
+            'IX',
+            'MC',
+            'XI',
+            'XII',
+          ];
           const houses = HOUSE_NAMES.map((name, i) => ({
             name,
             longitude: houseCusps[i],
-            sign: zodiacSign(houseCusps[i])
+            sign: zodiacSign(houseCusps[i]),
           }));
-
-          const ic = (mc + 180) % 360;
-          const desc = (ascendant + 180) % 360;
 
           return {
             ascendant,
@@ -181,7 +191,7 @@ export function initSwissEph(ephePath = './ephe') {
             vertex: (result as any).vertex,
             equatorialAscendant: (result as any).equatorialAscendant,
             houseCusps,
-            houses
+            houses,
           };
         }
       }
